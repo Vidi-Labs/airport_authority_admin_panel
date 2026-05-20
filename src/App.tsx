@@ -71,7 +71,7 @@ const NavItem = memo(function NavItem({
       {isActive && (
         <motion.div
           layoutId="activeNavPill"
-          className="absolute left-1 top-1/2 -translate-y-1/2 w-[3px] h-6 rounded-full bg-blue-500"
+          className="absolute left-1.5 top-1/2 -translate-y-1/2 w-[3px] h-4 rounded-full bg-blue-500"
           transition={{ type: 'spring', stiffness: 380, damping: 30 }}
         />
       )}
@@ -283,17 +283,20 @@ export default function App() {
 
       {/* ===== MAIN CONTENT ===== */}
       <main
-        className="flex-1 flex flex-col p-3"
+        className="flex-1 flex flex-col overflow-x-hidden"
         style={{
-          marginLeft: sidebarExpanded ? 248 : 80,
+          marginLeft: sidebarExpanded ? 268 : 96,
+          marginRight: 8,
+          marginTop: 12,
+          marginBottom: 12,
           transition: `margin-left 2.5s cubic-bezier(0.16, 1, 0.3, 1)`,
           position: 'relative',
           zIndex: 100,
-          minHeight: '100vh',
+          maxWidth: `calc(100vw - ${sidebarExpanded ? 268 : 96}px - 8px)`,
         }}
       >
         {/* Main content wrapper — floating card style */}
-        <div className="flex-1 flex flex-col rounded-2xl border border-slate-100 bg-white overflow-hidden shadow-sm">
+        <div className="flex-1 flex flex-col rounded-2xl border border-slate-100 bg-white overflow-hidden shadow-sm" style={{ maxWidth: '100%' }}>
         {/* Top Header */}
         <header className="sticky top-0 z-30 h-14 flex items-center justify-between px-6 bg-white/80 backdrop-blur-xl border-b border-slate-100">
           <div className="flex items-center gap-4">
@@ -340,7 +343,7 @@ export default function App() {
         </header>
 
         {/* Page Content with Route Transitions */}
-        <div className="flex-1 overflow-y-auto px-6 pb-6" style={{ scrollBehavior: 'smooth' }}>
+        <div className="flex-1 overflow-y-auto" style={{ scrollBehavior: 'smooth' }}>
           <Suspense fallback={<PageLoader />}>
             <AnimatePresence mode="wait">
               <Routes location={location} key={location.pathname}>
