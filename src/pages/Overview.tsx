@@ -1,10 +1,11 @@
+import { memo } from 'react';
 import { motion } from 'framer-motion';
 import SpatialMap from '@/sections/SpatialMap';
 import TelemetryRibbon from '@/sections/TelemetryRibbon';
 import LivePassengerMonitor from '@/sections/LivePassengerMonitor';
 import DisruptionControl from '@/sections/DisruptionControl';
 import IntelligenceFooter from '@/sections/IntelligenceFooter';
-import { staggerContainer, staggerItem } from '@/lib/animations';
+import { CURVES, DURATION } from '@/lib/animations';
 import type { Passenger, Disruption, SystemLog } from '@/types/dashboard';
 
 interface OverviewProps {
@@ -28,6 +29,26 @@ interface OverviewProps {
   logs: SystemLog[];
 }
 
+// Per-element stagger: each element gets its own delay
+function el(index: number) {
+  const delay = index * DURATION.stagger;
+  return {
+    initial: { opacity: 0, y: 20, scale: 0.97 },
+    animate: {
+      opacity: 1,
+      y: 0,
+      scale: [0.97, 1.03, 0.99, 1],
+      transition: {
+        delay,
+        duration: DURATION.page,
+        ease: CURVES.easeOutSmooth as any,
+        opacity: { delay, duration: DURATION.fadeSlow, ease: 'linear' },
+        scale: { delay, duration: DURATION.page, times: [0, 0.45, 0.7, 1], ease: CURVES.easeOutSmooth as any },
+      },
+    },
+  };
+}
+
 export default function Overview({
   highlightedFilter,
   onFilterChange,
@@ -49,17 +70,9 @@ export default function Overview({
   logs,
 }: OverviewProps) {
   return (
-    <motion.div
-      variants={staggerContainer}
-      initial="initial"
-      animate="animate"
-      className="w-full flex flex-col h-full overflow-hidden"
-    >
-      {/* Hero Map Section */}
-      <motion.div
-        variants={staggerItem}
-        className="w-full h-[55vh] rounded-xl border border-slate-100 overflow-hidden relative mb-4 bg-white"
-      >
+    <div className="w-full flex flex-col">
+      {/* Element 0: Hero Map */}
+      <motion.div {...el(0)} className="w-full h-[55vh] rounded-xl border border-slate-100 overflow-hidden relative mb-4 bg-white">
         <SpatialMap
           passengers={passengers}
           highlightedFilter={highlightedFilter}
@@ -67,8 +80,8 @@ export default function Overview({
         />
       </motion.div>
 
-      {/* Telemetry Ribbon */}
-      <motion.div variants={staggerItem} className="mb-4">
+      {/* Element 1: Telemetry Ribbon */}
+      <motion.div {...el(1)} className="mb-4">
         <TelemetryRibbon
           activeCount={activeCount}
           deviatedCount={deviatedCount}
@@ -83,12 +96,8 @@ export default function Overview({
         />
       </motion.div>
 
-      {/* Operations Workspace */}
-      <motion.div
-        variants={staggerItem}
-        className="grid grid-cols-[1.5fr_1fr] gap-4"
-        style={{ minHeight: '400px' }}
-      >
+      {/* Element 2: Operations Workspace */}
+      <motion.div {...el(2)} className="grid grid-cols-[1.5fr_1fr] gap-4" style={{ minHeight: '400px' }}>
         <LivePassengerMonitor
           passengers={passengers}
           selectedPassenger={selectedPassenger}
@@ -102,13 +111,13 @@ export default function Overview({
         />
       </motion.div>
 
-      {/* Bottom spacer */}
+      {/* Spacer */}
       <div className="h-4" />
 
-      {/* Intelligence Footer */}
-      <motion.div variants={staggerItem}>
+      {/* Element 3: Intelligence Footer */}
+      <motion.div {...el(3)}>
         <IntelligenceFooter logs={logs} />
       </motion.div>
-    </motion.div>
+    </div>
   );
 }

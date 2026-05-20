@@ -1,5 +1,7 @@
-import { useMemo } from 'react';
+import { useMemo, memo } from 'react';
+import { motion } from 'framer-motion';
 import { Users, Navigation, AlertTriangle, Activity, MapPinOff, Wifi, Shield, Clock } from 'lucide-react';
+import { CURVES, DURATION } from '@/lib/animations';
 
 interface TelemetryRibbonProps {
   activeCount: number;
@@ -14,7 +16,7 @@ interface TelemetryRibbonProps {
   activeFilter: string | null;
 }
 
-export default function TelemetryRibbon({
+const TelemetryRibbon = memo(function TelemetryRibbon({
   activeCount,
   deviatedCount,
   emergencyCount,
@@ -103,49 +105,76 @@ export default function TelemetryRibbon({
   ], [activeCount, deviatedCount, emergencyCount, avgDeviation, avgConfidence, passengerCount, pendingAlerts, criticalAlerts]);
 
   const statusColors: Record<string, { bg: string; border: string; text: string; dot: string }> = {
-    ok: { bg: 'bg-emerald-500/10', border: 'border-emerald-500/30', text: 'text-emerald-400', dot: 'bg-emerald-400' },
-    warn: { bg: 'bg-amber-500/10', border: 'border-amber-500/30', text: 'text-amber-400', dot: 'bg-amber-400' },
-    err: { bg: 'bg-red-500/10', border: 'border-red-500/30', text: 'text-red-400', dot: 'bg-red-400' },
-    info: { bg: 'bg-cyan-500/10', border: 'border-cyan-500/30', text: 'text-cyan-400', dot: 'bg-cyan-400' },
+    ok: { bg: 'bg-emerald-50', border: 'border-emerald-200', text: 'text-emerald-600', dot: 'bg-emerald-500' },
+    warn: { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-600', dot: 'bg-amber-500' },
+    err: { bg: 'bg-red-50', border: 'border-red-200', text: 'text-red-500', dot: 'bg-red-500' },
+    info: { bg: 'bg-blue-50', border: 'border-blue-300', text: 'text-blue-500', dot: 'bg-blue-500' },
   };
 
   return (
-    <div className="w-full flex gap-3 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
+    <motion.div
+      className="w-full flex gap-3 overflow-x-auto pb-1"
+      style={{ scrollbarWidth: 'none' }}
+      variants={{
+        hidden: {},
+        visible: { transition: { staggerChildren: DURATION.stagger } },
+      }}
+      initial="hidden"
+      animate="visible"
+    >
       {metrics.map((metric) => {
         const colors = statusColors[metric.status];
         const Icon = metric.icon;
         const isActive = activeFilter === metric.filter;
 
         return (
-          <button
+          <motion.div
             key={metric.id}
-            onClick={() => metric.filter && onFilterClick(isActive ? null : metric.filter)}
-            className={`flex-shrink-0 flex items-center gap-3 px-4 py-3 rounded-lg border transition-all duration-200 text-left ${
-              isActive
-                ? `${colors.bg} ${colors.border} shadow-lg`
-                : `bg-[#0a111e] border-white/8 hover:border-cyan-500/20 hover:bg-[#101b2e]`
-            }`}
-            style={{ minWidth: '180px' }}
+            className="flex-1 min-w-0"
+            style={{ minWidth: 0 }}
+            variants={{
+              hidden: { opacity: 0, y: 16 },
+              visible: {
+                opacity: 1,
+                y: 0,
+                transition: { duration: DURATION.page, ease: CURVES.easeOutSmooth as any },
+              },
+            }}
+            whileTap={{
+              scale: 0.96,
+              transition: { duration: DURATION.fast, ease: CURVES.liquid as any },
+            }}
           >
-            <div className={`flex items-center justify-center w-9 h-9 rounded-lg ${colors.bg}`}>
-              <Icon size={16} className={colors.text} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="text-lg font-semibold text-[#f0f4f8] tracking-tight">{metric.value}</span>
-                {metric.total !== undefined && (
-                  <span className="text-xs text-[#8a9bb3]">/ {metric.total}</span>
-                )}
+            <button
+              onClick={() => metric.filter && onFilterClick(isActive ? null : metric.filter)}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg border transition-all text-left ${
+                isActive
+                  ? `${colors.bg} ${colors.border} shadow-md`
+                  : `bg-white border-slate-200 hover:border-blue-200 hover:bg-blue-50/50`
+              }`}
+            >
+              <div className={`flex items-center justify-center w-9 h-9 rounded-lg ${colors.bg} flex-shrink-0`}>
+                <Icon size={16} className={colors.text} />
               </div>
-              <div className="text-xs text-[#8a9bb3] truncate">{metric.label}</div>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <div className={`w-1.5 h-1.5 rounded-full ${colors.dot}`} />
-                <span className="text-[10px] font-mono text-[#8a9bb3]">{metric.delta}</span>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg font-semibold text-slate-800 tracking-tight">{metric.value}</span>
+                  {metric.total !== undefined && (
+                    <span className="text-xs text-slate-500">/ {metric.total}</span>
+                  )}
+                </div>
+                <div className="text-xs text-slate-500 truncate">{metric.label}</div>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <div className={`w-1.5 h-1.5 rounded-full ${colors.dot}`} />
+                  <span className="text-[10px] font-mono text-slate-500">{metric.delta}</span>
+                </div>
               </div>
-            </div>
-          </button>
+            </button>
+          </motion.div>
         );
       })}
-    </div>
+    </motion.div>
   );
-}
+});
+
+export default TelemetryRibbon;

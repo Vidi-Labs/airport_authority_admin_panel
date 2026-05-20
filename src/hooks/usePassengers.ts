@@ -66,19 +66,29 @@ function generatePassengers(count: number): Passenger[] {
 export function usePassengers(initialCount = 24) {
   const [passengers, setPassengers] = useState<Passenger[]>(() => generatePassengers(initialCount));
   const [selectedPassenger, setSelectedPassenger] = useState<string | null>(null);
+  const passengersRef = useRef<Passenger[]>(passengers);
   const animationRef = useRef<number | undefined>(undefined);
+  const lastUpdateRef = useRef(0);
 
-  const animate = useCallback(() => {
-    setPassengers(prev => prev.map(p => {
+  // Keep ref in sync
+  passengersRef.current = passengers;
+
+  const animate = useCallback((timestamp: number) => {
+    // Throttle to ~12fps (every ~83ms) — enough for smooth movement, no GC pressure
+    if (timestamp - lastUpdateRef.current < 83) {
+      animationRef.current = requestAnimationFrame(animate);
+      return;
+    }
+    lastUpdateRef.current = timestamp;
+
+    const updated = passengersRef.current.map(p => {
       const path = TERMINAL_PATHS[p.pathIndex];
       if (!path || p.status === 'completed') return p;
 
-      let newProgress = p.progress + p.speed;
+      let newProgress = p.progress + p.speed * 5; // compensate for lower frame rate
       let newPathIndex = p.pathIndex;
 
-      // Path transition logic
       if (newProgress >= 1) {
-        // At end of current path - find connecting path
         const endNode = path[path.length - 1];
         const connectingPaths = TERMINAL_PATHS
           .map((cp, idx) => ({ idx, start: cp[0] }))
@@ -96,7 +106,6 @@ export function usePassengers(initialCount = 24) {
       const newPath = TERMINAL_PATHS[newPathIndex];
       if (!newPath) return p;
 
-      // Interpolate position along path
       const totalSegments = newPath.length - 1;
       const segmentProgress = newProgress * totalSegments;
       const segmentIdx = Math.min(Math.floor(segmentProgress), totalSegments - 1);
@@ -117,7 +126,9 @@ export function usePassengers(initialCount = 24) {
         lastUpdate: new Date().toISOString(),
         deviation: Math.max(0, p.deviation + (Math.random() - 0.5) * 0.1),
       };
-    }));
+    });
+
+    setPassengers(updated);
     animationRef.current = requestAnimationFrame(animate);
   }, []);
 

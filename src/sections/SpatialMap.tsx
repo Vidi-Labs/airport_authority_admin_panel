@@ -1,4 +1,4 @@
-import { useRef, useMemo, useEffect, useState, useCallback } from 'react';
+import { useRef, useMemo, useEffect, useState, useCallback, memo } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import type { Passenger } from '@/types/dashboard';
@@ -55,7 +55,7 @@ function SpotlightPlane() {
     <mesh ref={meshRef}>
       <planeGeometry args={[400, 400]} />
       <meshBasicMaterial
-        color="#38bdf8"
+        color="#3b82f6"
         transparent
         opacity={0.04}
         depthWrite={false}
@@ -78,7 +78,7 @@ function ParticleSystem({ passengers, highlightedFilter }: ParticleSystemProps) 
 
   const uniforms = useMemo(() => ({
     time: { value: 0 },
-    color: { value: new THREE.Color('#38bdf8') },
+    color: { value: new THREE.Color('#2563eb') },
   }), []);
 
   const { geometry } = useMemo(() => {
@@ -92,11 +92,11 @@ function ParticleSystem({ passengers, highlightedFilter }: ParticleSystemProps) 
       positions[i * 3 + 2] = 0;
 
       // Color based on status
-      let c = new THREE.Color('#38bdf8'); // cyan active
-      if (p.status === 'deviated') c = new THREE.Color('#f59e0b'); // amber
-      else if (p.status === 'emergency') c = new THREE.Color('#ef4444'); // red
-      else if (p.status === 'idle') c = new THREE.Color('#10b981'); // green
-      else if (p.status === 'completed') c = new THREE.Color('#6b7280'); // gray
+      let c = new THREE.Color('#2563eb'); // blue active
+      if (p.status === 'deviated') c = new THREE.Color('#d97706'); // amber
+      else if (p.status === 'emergency') c = new THREE.Color('#dc2626'); // red
+      else if (p.status === 'idle') c = new THREE.Color('#059669'); // green
+      else if (p.status === 'completed') c = new THREE.Color('#64748b'); // slate
 
       cols[i * 3] = c.r;
       cols[i * 3 + 1] = c.g;
@@ -126,11 +126,11 @@ function ParticleSystem({ passengers, highlightedFilter }: ParticleSystemProps) 
         positions[i * 3 + 1] += (targetY - positions[i * 3 + 1]) * 0.08;
 
         // Update color based on status and filter
-        let c = new THREE.Color('#38bdf8');
-        if (p.status === 'deviated') c = new THREE.Color('#f59e0b');
-        else if (p.status === 'emergency') c = new THREE.Color('#ef4444');
-        else if (p.status === 'idle') c = new THREE.Color('#10b981');
-        else if (p.status === 'completed') c = new THREE.Color('#6b7280');
+        let c = new THREE.Color('#2563eb');
+        if (p.status === 'deviated') c = new THREE.Color('#d97706');
+        else if (p.status === 'emergency') c = new THREE.Color('#dc2626');
+        else if (p.status === 'idle') c = new THREE.Color('#059669');
+        else if (p.status === 'completed') c = new THREE.Color('#64748b');
 
         // Apply filter dimming
         if (highlightedFilter) {
@@ -139,7 +139,7 @@ function ParticleSystem({ passengers, highlightedFilter }: ParticleSystemProps) 
             (highlightedFilter === 'active' && p.status === 'active') ||
             (highlightedFilter === 'emergency' && p.status === 'emergency');
           if (!matchesFilter) {
-            c.lerp(new THREE.Color('#0a111e'), 0.85);
+            c.lerp(new THREE.Color('#e2e8f0'), 0.85);
           }
         }
 
@@ -174,7 +174,7 @@ function TerminalSVG() {
     <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid meet">
       <defs>
         <filter id="neon-glow">
-          <feGaussianBlur stdDeviation="2.5" result="coloredBlur" />
+          <feGaussianBlur stdDeviation="1.5" result="coloredBlur" />
           <feMerge>
             <feMergeNode in="coloredBlur" />
             <feMergeNode in="coloredBlur" />
@@ -182,22 +182,22 @@ function TerminalSVG() {
           </feMerge>
         </filter>
         <linearGradient id="wall-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="rgba(56, 189, 248, 0.3)" />
-          <stop offset="50%" stopColor="rgba(240, 244, 248, 0.15)" />
-          <stop offset="100%" stopColor="rgba(56, 189, 248, 0.3)" />
+          <stop offset="0%" stopColor="rgba(59,130,246,0.4)" />
+          <stop offset="50%" stopColor="rgba(30,41,59,0.15)" />
+          <stop offset="100%" stopColor="rgba(59,130,246,0.4)" />
         </linearGradient>
       </defs>
 
       {/* Gate labels */}
       <g opacity="0.7">
-        <text x="180" y="180" fill="#38bdf8" fontSize="14" fontFamily="JetBrains Mono">GATE A1-A10</text>
-        <text x="580" y="180" fill="#38bdf8" fontSize="14" fontFamily="JetBrains Mono">GATE B1-B15</text>
-        <text x="980" y="180" fill="#38bdf8" fontSize="14" fontFamily="JetBrains Mono">GATE C1-C32</text>
-        <text x="1420" y="180" fill="#38bdf8" fontSize="14" fontFamily="JetBrains Mono">GATE D1-D8</text>
-        <text x="180" y="640" fill="#f59e0b" fontSize="12" fontFamily="JetBrains Mono">SECURITY</text>
-        <text x="580" y="640" fill="#10b981" fontSize="12" fontFamily="JetBrains Mono">BAGGAGE</text>
-        <text x="980" y="640" fill="#10b981" fontSize="12" fontFamily="JetBrains Mono">IMMIGRATION</text>
-        <text x="1420" y="820" fill="#f59e0b" fontSize="12" fontFamily="JetBrains Mono">EMERGENCY EXIT</text>
+        <text x="180" y="180" fill="#3b82f6" fontSize="14" fontFamily="JetBrains Mono">GATE A1-A10</text>
+        <text x="580" y="180" fill="#3b82f6" fontSize="14" fontFamily="JetBrains Mono">GATE B1-B15</text>
+        <text x="980" y="180" fill="#3b82f6" fontSize="14" fontFamily="JetBrains Mono">GATE C1-C32</text>
+        <text x="1420" y="180" fill="#3b82f6" fontSize="14" fontFamily="JetBrains Mono">GATE D1-D8</text>
+        <text x="180" y="640" fill="#d97706" fontSize="12" fontFamily="JetBrains Mono">SECURITY</text>
+        <text x="580" y="640" fill="#059669" fontSize="12" fontFamily="JetBrains Mono">BAGGAGE</text>
+        <text x="980" y="640" fill="#059669" fontSize="12" fontFamily="JetBrains Mono">IMMIGRATION</text>
+        <text x="1420" y="820" fill="#d97706" fontSize="12" fontFamily="JetBrains Mono">EMERGENCY EXIT</text>
       </g>
 
       {/* Main terminal walls */}
@@ -229,44 +229,44 @@ function TerminalSVG() {
 
       {/* Nodes */}
       <g>
-        <circle cx="200" cy="200" r="5" fill="#38bdf8" opacity="0.6" />
-        <circle cx="600" cy="200" r="5" fill="#38bdf8" opacity="0.6" />
-        <circle cx="600" cy="400" r="5" fill="#f59e0b" opacity="0.8" />
-        <circle cx="600" cy="600" r="5" fill="#38bdf8" opacity="0.6" />
-        <circle cx="1000" cy="200" r="5" fill="#38bdf8" opacity="0.6" />
-        <circle cx="1000" cy="400" r="5" fill="#38bdf8" opacity="0.6" />
-        <circle cx="1000" cy="600" r="5" fill="#38bdf8" opacity="0.6" />
-        <circle cx="1400" cy="200" r="5" fill="#38bdf8" opacity="0.6" />
-        <circle cx="1400" cy="600" r="5" fill="#38bdf8" opacity="0.6" />
-        <circle cx="1400" cy="800" r="5" fill="#ef4444" opacity="0.8" />
-        <circle cx="200" cy="600" r="5" fill="#38bdf8" opacity="0.6" />
-        <circle cx="200" cy="400" r="5" fill="#38bdf8" opacity="0.4" />
-        <circle cx="1400" cy="400" r="5" fill="#38bdf8" opacity="0.4" />
+        <circle cx="200" cy="200" r="5" fill="#2563eb" opacity="0.7" />
+        <circle cx="600" cy="200" r="5" fill="#2563eb" opacity="0.7" />
+        <circle cx="600" cy="400" r="5" fill="#d97706" opacity="0.8" />
+        <circle cx="600" cy="600" r="5" fill="#2563eb" opacity="0.7" />
+        <circle cx="1000" cy="200" r="5" fill="#2563eb" opacity="0.7" />
+        <circle cx="1000" cy="400" r="5" fill="#2563eb" opacity="0.7" />
+        <circle cx="1000" cy="600" r="5" fill="#2563eb" opacity="0.7" />
+        <circle cx="1400" cy="200" r="5" fill="#2563eb" opacity="0.7" />
+        <circle cx="1400" cy="600" r="5" fill="#2563eb" opacity="0.7" />
+        <circle cx="1400" cy="800" r="5" fill="#dc2626" opacity="0.8" />
+        <circle cx="200" cy="600" r="5" fill="#2563eb" opacity="0.7" />
+        <circle cx="200" cy="400" r="5" fill="#2563eb" opacity="0.5" />
+        <circle cx="1400" cy="400" r="5" fill="#2563eb" opacity="0.5" />
       </g>
 
       {/* Blocked area indicator */}
       <g opacity="0.6">
-        <rect x="550" y="370" width="100" height="60" fill="none" stroke="#f59e0b" strokeWidth="1" strokeDasharray="4,2" />
-        <text x="560" y="435" fill="#f59e0b" fontSize="10" fontFamily="JetBrains Mono">BLOCKED</text>
+        <rect x="550" y="370" width="100" height="60" fill="none" stroke="#fde68a" strokeWidth="1" strokeDasharray="4,2" />
+        <text x="560" y="435" fill="#d97706" fontSize="10" fontFamily="JetBrains Mono">BLOCKED</text>
       </g>
 
       {/* Gate markers */}
       {Array.from({ length: 8 }, (_, i) => (
         <g key={`a-${i}`} opacity="0.4">
-          <rect x={240 + i * 45} y="210" width="30" height="8" rx="2" fill="none" stroke="#38bdf8" strokeWidth="0.5" />
-          <text x={245 + i * 45} y="217" fill="#38bdf8" fontSize="6" fontFamily="JetBrains Mono">A{i + 1}</text>
+          <rect x={240 + i * 45} y="210" width="30" height="8" rx="2" fill="none" stroke="#3b82f6" strokeWidth="0.5" />
+          <text x={245 + i * 45} y="217" fill="#3b82f6" fontSize="6" fontFamily="JetBrains Mono">A{i + 1}</text>
         </g>
       ))}
       {Array.from({ length: 8 }, (_, i) => (
         <g key={`b-${i}`} opacity="0.4">
-          <rect x={640 + i * 45} y="210" width="30" height="8" rx="2" fill="none" stroke="#38bdf8" strokeWidth="0.5" />
-          <text x={645 + i * 45} y="217" fill="#38bdf8" fontSize="6" fontFamily="JetBrains Mono">B{i + 1}</text>
+          <rect x={640 + i * 45} y="210" width="30" height="8" rx="2" fill="none" stroke="#3b82f6" strokeWidth="0.5" />
+          <text x={645 + i * 45} y="217" fill="#3b82f6" fontSize="6" fontFamily="JetBrains Mono">B{i + 1}</text>
         </g>
       ))}
       {Array.from({ length: 8 }, (_, i) => (
         <g key={`c-${i}`} opacity="0.4">
-          <rect x={1040 + i * 45} y="210" width="30" height="8" rx="2" fill="none" stroke="#38bdf8" strokeWidth="0.5" />
-          <text x={1045 + i * 45} y="217" fill="#38bdf8" fontSize="6" fontFamily="JetBrains Mono">C{i + 1}</text>
+          <rect x={1040 + i * 45} y="210" width="30" height="8" rx="2" fill="none" stroke="#3b82f6" strokeWidth="0.5" />
+          <text x={1045 + i * 45} y="217" fill="#3b82f6" fontSize="6" fontFamily="JetBrains Mono">C{i + 1}</text>
         </g>
       ))}
     </svg>
@@ -308,7 +308,7 @@ function HeatmapOverlay({ passengers, visible }: HeatmapOverlayProps) {
       });
 
       ctx.globalCompositeOperation = 'source-over';
-      ctx.fillStyle = 'rgba(5, 10, 20, 0.75)';
+      ctx.fillStyle = 'rgba(248, 250, 252, 0.65)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       animId = requestAnimationFrame(animate);
@@ -338,7 +338,7 @@ interface SpatialMapProps {
   onFilterChange: (filter: string | null) => void;
 }
 
-export default function SpatialMap({ passengers, highlightedFilter, onFilterChange }: SpatialMapProps) {
+const SpatialMap = memo(function SpatialMap({ passengers, highlightedFilter, onFilterChange }: SpatialMapProps) {
   const [showHeatmap, setShowHeatmap] = useState(false);
   const [showSigns, setShowSigns] = useState(true);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -359,8 +359,8 @@ export default function SpatialMap({ passengers, highlightedFilter, onFilterChan
       <div
         className="absolute inset-0"
         style={{
-          backgroundColor: '#080f1a',
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.5' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"), linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px)`,
+          backgroundColor: '#f8fafc',
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.5' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"), linear-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 0, 0, 0.04) 1px, transparent 1px)`,
           backgroundSize: '200px 200px, 40px 40px, 40px 40px',
         }}
       />
@@ -376,7 +376,7 @@ export default function SpatialMap({ passengers, highlightedFilter, onFilterChan
           top: mousePos.y - 200,
           width: 400,
           height: 400,
-          background: 'radial-gradient(circle, rgba(56, 189, 248, 0.08) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(59,130,246,0.06) 0%, transparent 70%)',
           zIndex: 3,
         }}
       />
@@ -403,8 +403,8 @@ export default function SpatialMap({ passengers, highlightedFilter, onFilterChan
           onClick={() => setShowHeatmap(!showHeatmap)}
           className={`px-3 py-1.5 rounded text-xs font-mono transition-all ${
             showHeatmap
-              ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/40'
-              : 'bg-[#0a111e] text-[#8a9bb3] border border-white/10 hover:border-cyan-500/30'
+              ? 'bg-blue-100 text-blue-600 border border-blue-400'
+              : 'bg-white text-slate-600 border border-slate-200 hover:border-blue-300'
           }`}
         >
           Heatmap
@@ -413,8 +413,8 @@ export default function SpatialMap({ passengers, highlightedFilter, onFilterChan
           onClick={() => setShowSigns(!showSigns)}
           className={`px-3 py-1.5 rounded text-xs font-mono transition-all ${
             showSigns
-              ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/40'
-              : 'bg-[#0a111e] text-[#8a9bb3] border border-white/10 hover:border-cyan-500/30'
+              ? 'bg-blue-100 text-blue-600 border border-blue-400'
+              : 'bg-white text-slate-600 border border-slate-200 hover:border-blue-300'
           }`}
         >
           Signs
@@ -423,8 +423,8 @@ export default function SpatialMap({ passengers, highlightedFilter, onFilterChan
           onClick={() => onFilterChange(highlightedFilter === 'active' ? null : 'active')}
           className={`px-3 py-1.5 rounded text-xs font-mono transition-all ${
             highlightedFilter === 'active'
-              ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
-              : 'bg-[#0a111e] text-[#8a9bb3] border border-white/10 hover:border-emerald-500/30'
+              ? 'bg-emerald-100 text-emerald-600 border border-emerald-400'
+              : 'bg-white text-slate-600 border border-slate-200 hover:border-emerald-300'
           }`}
         >
           Active Only
@@ -433,8 +433,8 @@ export default function SpatialMap({ passengers, highlightedFilter, onFilterChan
           onClick={() => onFilterChange(highlightedFilter === 'blocked' ? null : 'blocked')}
           className={`px-3 py-1.5 rounded text-xs font-mono transition-all ${
             highlightedFilter === 'blocked'
-              ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40'
-              : 'bg-[#0a111e] text-[#8a9bb3] border border-white/10 hover:border-amber-500/30'
+              ? 'bg-amber-100 text-amber-600 border border-amber-400'
+              : 'bg-white text-slate-600 border border-slate-200 hover:border-amber-300'
           }`}
         >
           Deviated
@@ -442,30 +442,32 @@ export default function SpatialMap({ passengers, highlightedFilter, onFilterChan
       </div>
 
       {/* Passenger count badge */}
-      <div className="absolute bottom-3 left-3 flex items-center gap-2 px-3 py-1.5 rounded bg-[#0a111e]/90 border border-white/10" style={{ zIndex: 10 }}>
+      <div className="absolute bottom-3 left-3 flex items-center gap-2 px-3 py-1.5 rounded bg-white/90 border border-slate-200" style={{ zIndex: 10 }}>
         <div className="status-dot status-dot-info" />
-        <span className="text-xs font-mono text-[#8a9bb3]">{passengers.length} TRACKED</span>
+        <span className="text-xs font-mono text-slate-500">{passengers.length} TRACKED</span>
       </div>
 
       {/* Legend */}
-      <div className="absolute bottom-3 right-3 flex items-center gap-4 px-3 py-1.5 rounded bg-[#0a111e]/90 border border-white/10" style={{ zIndex: 10 }}>
+      <div className="absolute bottom-3 right-3 flex items-center gap-4 px-3 py-1.5 rounded bg-white/90 border border-slate-200" style={{ zIndex: 10 }}>
         <div className="flex items-center gap-1.5">
-          <div className="w-2 h-2 rounded-full bg-[#38bdf8]" />
-          <span className="text-[10px] font-mono text-[#8a9bb3]">Active</span>
+          <div className="w-2 h-2 rounded-full bg-blue-500" />
+          <span className="text-[10px] font-mono text-slate-500">Active</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="w-2 h-2 rounded-full bg-[#f59e0b]" />
-          <span className="text-[10px] font-mono text-[#8a9bb3]">Deviated</span>
+          <div className="w-2 h-2 rounded-full bg-amber-500" />
+          <span className="text-[10px] font-mono text-slate-500">Deviated</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="w-2 h-2 rounded-full bg-[#ef4444]" />
-          <span className="text-[10px] font-mono text-[#8a9bb3]">Emergency</span>
+          <div className="w-2 h-2 rounded-full bg-red-500" />
+          <span className="text-[10px] font-mono text-slate-500">Emergency</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="w-2 h-2 rounded-full bg-[#10b981]" />
-          <span className="text-[10px] font-mono text-[#8a9bb3]">Idle</span>
+          <div className="w-2 h-2 rounded-full bg-emerald-500" />
+          <span className="text-[10px] font-mono text-slate-500">Idle</span>
         </div>
       </div>
     </div>
   );
-}
+});
+
+export default SpatialMap;
