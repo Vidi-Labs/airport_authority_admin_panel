@@ -14,6 +14,7 @@ import {
   FileText,
   RotateCcw,
 } from 'lucide-react';
+import { AirportMapModule } from '@/components/AirportMap/AirportMapModule';
 
 const EDITOR_TOOLS = [
   { id: 'select', label: 'Select', icon: Move },
@@ -139,25 +140,9 @@ export default function MapManagement() {
               </div>
             </div>
 
-            {/* Editor Placeholder */}
-            <div className="absolute inset-0 top-[45px] flex items-center justify-center">
-              <div className="flex flex-col items-center gap-4">
-                <div className="w-20 h-20 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center">
-                  <Map size={32} className="text-slate-300" />
-                </div>
-                <div className="text-center">
-                  <p className="text-sm font-medium text-slate-400">3D Map Editor</p>
-                  <p className="text-xs text-slate-300 mt-1">
-                    Select a tool and click to place or edit map elements
-                  </p>
-                </div>
-                {/* Grid overlay hint */}
-                <div className="grid grid-cols-6 gap-2 opacity-20">
-                  {Array.from({ length: 24 }).map((_, i) => (
-                    <div key={i} className="w-6 h-6 rounded-sm border border-slate-200" />
-                  ))}
-                </div>
-              </div>
+            {/* 3D Airport Map */}
+            <div className="absolute inset-0 top-[45px]">
+              <AirportMapModule />
             </div>
           </div>
         </motion.div>
