@@ -1,17 +1,39 @@
 import { useEffect, useRef, useCallback } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { clone as cloneSkeleton } from "three/addons/utils/SkeletonUtils.js";
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+import { RectAreaLightUniformsLib } from "three/addons/lights/RectAreaLightUniformsLib.js";
 import gsap from "gsap";
-import { TERMINAL_ZONES, WALL_HEIGHT, FLOOR_COLOR, type ZoneDef } from "./mapGeometry";
+import { TERMINAL_ZONES, WALL_HEIGHT } from "./mapGeometry";
 import type { Passenger } from "./passengerData";
 
 const DEFAULT_CAMERA_POS = new THREE.Vector3(0, 280, 220);
 const DEFAULT_CAMERA_TARGET = new THREE.Vector3(0, 0, 0);
+const MIXAMO_CHARACTER_URL = "/models/mixamo-walking-character.glb";
+const STANDARD_MATERIAL_SETTINGS = { roughness: 0.3, metalness: 0.05 };
+const MARBLE_TILE_BASE64 =
+  "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";
 
-type PassengerMeshGroup = {
+type MixamoTemplate = {
+  scene: THREE.Group;
+  animations: THREE.AnimationClip[];
+};
+
+type FallbackHumanParts = {
   group: THREE.Group;
   legL: THREE.Mesh;
   legR: THREE.Mesh;
+  armL: THREE.Mesh;
+  armR: THREE.Mesh;
+};
+
+type PassengerMeshGroup = {
+  group: THREE.Group;
+  model: THREE.Object3D | null;
+  mixer: THREE.AnimationMixer | null;
+  fallbackHuman: FallbackHumanParts;
   nameBadge: THREE.Sprite;
   statusRing: THREE.Mesh;
   trailLine: THREE.Line;
@@ -30,32 +52,171 @@ function getStatusColor(status: string): number {
   }
 }
 
-function darkenColor(hex: string, factor: number): string {
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
-  return `rgb(${Math.floor(r * factor)}, ${Math.floor(g * factor)}, ${Math.floor(b * factor)})`;
+function darkenColor(color: string | number, factor: number): number {
+  const c = new THREE.Color(color);
+  c.multiplyScalar(factor);
+  return c.getHex();
 }
 
 function getSkinTone(nationality: string): string {
   switch (nationality) {
+    case "Ghanaian": return "#5c3a21";
+    case "Nigerian": return "#4a2f1b";
+    case "Japanese": return "#f1c27d";
+    case "Chinese": return "#e8b887";
+    case "Indian": return "#8d5524";
+    case "Brazilian": return "#c68642";
+    case "Saudi": return "#b47b4a";
+    case "Russian": return "#f1d0b0";
+    case "French": return "#f3c6a5";
+    default: return "#c68642";
+  }
+}
+
+function getHairColor(nationality: string): number {
+  switch (nationality) {
     case "Ghanaian":
     case "Nigerian":
-      return "#8D5524";
     case "Japanese":
     case "Chinese":
-      return "#F1C27D";
+      return 0x111111;
     case "Indian":
-      return "#C68642";
-    case "Brazilian":
-      return "#D4A574";
     case "Saudi":
-      return "#D2A679";
+      return 0x1a0e00;
+    case "Brazilian":
+      return 0x3d1c00;
     case "Russian":
     case "French":
-      return "#FFDBB4";
-    default: return "#E8B88A";
+      return 0x8b7355;
+    default:
+      return 0x2a1a0a;
   }
+}
+
+
+function createFallbackHuman(passenger: Passenger): FallbackHumanParts {
+  const root = new THREE.Group();
+  root.userData.passengerId = passenger.id;
+
+  const skinTone = getSkinTone(passenger.nationality);
+  const hairColor = getHairColor(passenger.nationality);
+  const pantsColor = darkenColor(passenger.shirtColor, 0.45);
+
+  const shadowGeo = new THREE.CircleGeometry(6, 24);
+  const shadowMat = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.18 });
+  const shadow = new THREE.Mesh(shadowGeo, shadowMat);
+  shadow.rotation.x = -Math.PI / 2;
+  shadow.position.y = 0.1;
+  root.add(shadow);
+
+  const legGeo = new THREE.CylinderGeometry(1.4, 1.2, 8, 10);
+  const legMat = createStandardMaterial({ color: pantsColor });
+  const legL = new THREE.Mesh(legGeo, legMat.clone());
+  const legR = new THREE.Mesh(legGeo, legMat.clone());
+  legL.position.set(-2, 4, 0);
+  legR.position.set(2, 4, 0);
+  legL.castShadow = true;
+  legR.castShadow = true;
+  root.add(legL, legR);
+
+  const shoeGeo = new THREE.BoxGeometry(2.2, 1, 3.2);
+  const shoeMat = createStandardMaterial({ color: 0x1e293b });
+  const shoeL = new THREE.Mesh(shoeGeo, shoeMat.clone());
+  const shoeR = new THREE.Mesh(shoeGeo, shoeMat.clone());
+  shoeL.position.set(-2, 0.5, 0.6);
+  shoeR.position.set(2, 0.5, 0.6);
+  shoeL.castShadow = true;
+  shoeR.castShadow = true;
+  root.add(shoeL, shoeR);
+
+  const bodyGeo = new THREE.CylinderGeometry(3.5, 4, 11, 16);
+  const body = new THREE.Mesh(bodyGeo, createStandardMaterial({ color: passenger.shirtColor }));
+  body.position.y = 13.5;
+  body.castShadow = true;
+  root.add(body);
+
+  const armGeo = new THREE.CylinderGeometry(1, 0.8, 9, 10);
+  const armMat = createStandardMaterial({ color: passenger.shirtColor });
+  const armL = new THREE.Mesh(armGeo, armMat.clone());
+  const armR = new THREE.Mesh(armGeo, armMat.clone());
+  armL.position.set(-5, 15, 0);
+  armR.position.set(5, 15, 0);
+  armL.rotation.z = 0.15;
+  armR.rotation.z = -0.15;
+  armL.castShadow = true;
+  armR.castShadow = true;
+  root.add(armL, armR);
+
+  const handGeo = new THREE.SphereGeometry(0.85, 10, 10);
+  const handMat = createStandardMaterial({ color: skinTone });
+  const handL = new THREE.Mesh(handGeo, handMat.clone());
+  const handR = new THREE.Mesh(handGeo, handMat.clone());
+  handL.position.set(-5.5, 10, 0);
+  handR.position.set(5.5, 10, 0);
+  handL.castShadow = true;
+  handR.castShadow = true;
+  root.add(handL, handR);
+
+  const neck = new THREE.Mesh(
+    new THREE.CylinderGeometry(1.8, 2.2, 2, 10),
+    createStandardMaterial({ color: skinTone }),
+  );
+  neck.position.y = 19.5;
+  neck.castShadow = true;
+  root.add(neck);
+
+  const headGeo = new THREE.SphereGeometry(4.2, 18, 18);
+  headGeo.scale(1, 1.1, 0.95);
+  const head = new THREE.Mesh(headGeo, createStandardMaterial({ color: skinTone }));
+  head.position.y = 22.5;
+  head.castShadow = true;
+  root.add(head);
+
+  const hair = new THREE.Mesh(
+    new THREE.SphereGeometry(4.5, 18, 18, 0, Math.PI * 2, 0, Math.PI * 0.55),
+    createStandardMaterial({ color: hairColor }),
+  );
+  hair.position.y = 23;
+  hair.scale.set(1, 0.9, 0.95);
+  hair.castShadow = true;
+  root.add(hair);
+
+  const eyeWhiteGeo = new THREE.SphereGeometry(0.9, 10, 10);
+  const eyeWhiteMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+  const eyeWhiteL = new THREE.Mesh(eyeWhiteGeo, eyeWhiteMat.clone());
+  const eyeWhiteR = new THREE.Mesh(eyeWhiteGeo, eyeWhiteMat.clone());
+  eyeWhiteL.position.set(-1.4, 23, 2.8);
+  eyeWhiteR.position.set(1.4, 23, 2.8);
+  root.add(eyeWhiteL, eyeWhiteR);
+
+  const irisGeo = new THREE.SphereGeometry(0.55, 10, 10);
+  const irisMat = new THREE.MeshBasicMaterial({ color: 0x111111 });
+  const irisL = new THREE.Mesh(irisGeo, irisMat.clone());
+  const irisR = new THREE.Mesh(irisGeo, irisMat.clone());
+  irisL.position.set(-1.4, 23, 3.4);
+  irisR.position.set(1.4, 23, 3.4);
+  root.add(irisL, irisR);
+
+  const nose = new THREE.Mesh(
+    new THREE.ConeGeometry(0.5, 1.2, 8),
+    createStandardMaterial({ color: skinTone }),
+  );
+  nose.position.set(0, 22, 3.5);
+  nose.rotation.x = -Math.PI / 4;
+  root.add(nose);
+
+  const mouth = new THREE.Mesh(
+    new THREE.BoxGeometry(1.8, 0.3, 0.3),
+    createStandardMaterial({ color: darkenColor(skinTone, 0.65) }),
+  );
+  mouth.position.set(0, 21, 3.2);
+  root.add(mouth);
+
+  root.traverse((child) => {
+    child.userData.passengerId = passenger.id;
+  });
+
+  return { group: root, legL, legR, armL, armR };
 }
 
 function createNameBadgeCanvas(id: string, status: string): HTMLCanvasElement {
@@ -65,7 +226,6 @@ function createNameBadgeCanvas(id: string, status: string): HTMLCanvasElement {
   const ctx = canvas.getContext("2d")!;
   ctx.clearRect(0, 0, 128, 32);
 
-  // Status dot
   const statusHex = status === "navigating" ? "#22aaff"
     : status === "shopping" ? "#ffaa22"
     : status === "waiting" ? "#8888ff"
@@ -76,13 +236,147 @@ function createNameBadgeCanvas(id: string, status: string): HTMLCanvasElement {
   ctx.fillStyle = statusHex;
   ctx.fill();
 
-  // Text
   ctx.font = "bold 14px monospace";
-  ctx.fillStyle = "#ffffff";
+  ctx.fillStyle = "#1e293b";
   ctx.textAlign = "left";
   ctx.fillText(id, 22, 21);
 
   return canvas;
+}
+
+function getZoneWallColor(type: string): number {
+  switch (type) {
+    case "corridor": return 0x94a3b8;
+    case "gate": return 0x3b82f6;
+    case "shop": return 0xf59e0b;
+    case "facility": return 0x06b6d4;
+    case "security": return 0xef4444;
+    default: return 0x64748b;
+  }
+}
+
+function getZoneEdgeColor(type: string): number {
+  switch (type) {
+    case "corridor": return 0x64748b;
+    case "gate": return 0x2563eb;
+    case "shop": return 0xd97706;
+    case "facility": return 0x0891b2;
+    case "security": return 0xdc2626;
+    default: return 0x475569;
+  }
+}
+
+function createStandardMaterial(params: THREE.MeshStandardMaterialParameters): THREE.MeshStandardMaterial {
+  return new THREE.MeshStandardMaterial({ ...params, ...STANDARD_MATERIAL_SETTINGS });
+}
+
+function isBodyMaterial(meshName: string, materialName: string): boolean {
+  return /body|shirt|top|torso|chest|spine|mixamorigspine/i.test(`${meshName} ${materialName}`);
+}
+
+function toStandardMaterial(material: THREE.Material, shirtColor?: string, forceShirtColor = false): THREE.MeshStandardMaterial {
+  const source = material as THREE.MeshStandardMaterial & { color?: THREE.Color; map?: THREE.Texture | null };
+  const standard = new THREE.MeshStandardMaterial({
+    color: source.color?.clone() ?? new THREE.Color(0xffffff),
+    map: source.map ?? null,
+    transparent: material.transparent,
+    opacity: material.opacity,
+    side: material.side,
+    alphaTest: material.alphaTest,
+    name: material.name,
+    ...STANDARD_MATERIAL_SETTINGS,
+  });
+
+  if (shirtColor && forceShirtColor) {
+    standard.color.set(shirtColor);
+    standard.map = null;
+  }
+
+  return standard;
+}
+
+function tintPassengerBody(model: THREE.Object3D, shirtColor: string): void {
+  let tinted = false;
+
+  model.traverse((child) => {
+    const mesh = child as THREE.Mesh;
+    if (!mesh.isMesh || !mesh.material) return;
+
+    const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+    const converted = materials.map((mat) => {
+      const shouldTint = isBodyMaterial(mesh.name, mat.name);
+      tinted ||= shouldTint;
+      return toStandardMaterial(mat, shirtColor, shouldTint);
+    });
+
+    mesh.material = Array.isArray(mesh.material) ? converted : converted[0];
+  });
+
+  if (!tinted) {
+    let firstTintable: THREE.Mesh | null = null;
+    model.traverse((child) => {
+      const mesh = child as THREE.Mesh;
+      if (!firstTintable && mesh.isMesh && mesh.material && !/eye|hair|skin|head|shoe|boot/i.test(mesh.name)) {
+        firstTintable = mesh;
+      }
+    });
+
+    if (firstTintable) {
+      const mesh = firstTintable as THREE.Mesh;
+      const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+      const converted = materials.map((mat) => toStandardMaterial(mat, shirtColor, true));
+      mesh.material = Array.isArray(mesh.material) ? converted : converted[0];
+    }
+  }
+}
+
+function attachMixamoModel(pg: PassengerMeshGroup, template: MixamoTemplate, passenger: Passenger): void {
+  if (pg.model) return;
+
+  const model = cloneSkeleton(template.scene);
+  model.userData.passengerId = passenger.id;
+  model.scale.setScalar(12);
+  model.position.y = 4;
+
+  model.traverse((child) => {
+    child.userData.passengerId = passenger.id;
+    const mesh = child as THREE.Mesh;
+    if (!mesh.isMesh) return;
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+  });
+
+  tintPassengerBody(model, passenger.shirtColor);
+  pg.group.add(model);
+  pg.fallbackHuman.group.visible = false;
+  pg.model = model;
+
+  const walkClip = template.animations.find((clip) => /walk/i.test(clip.name)) ?? template.animations[0];
+  if (walkClip) {
+    const mixer = new THREE.AnimationMixer(model);
+    mixer.clipAction(walkClip).reset().play();
+    pg.mixer = mixer;
+  }
+}
+
+function createMarbleTexture(): THREE.Texture {
+  const texture = new THREE.TextureLoader().load(`data:image/png;base64,${MARBLE_TILE_BASE64}`);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(30, 30);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.needsUpdate = true;
+  return texture;
+}
+
+
+function getCanvasRenderSize(canvas: HTMLCanvasElement): { width: number; height: number } {
+  const rect = canvas.getBoundingClientRect();
+  const parentRect = canvas.parentElement?.getBoundingClientRect();
+  return {
+    width: Math.max(1, Math.floor(rect.width || parentRect?.width || canvas.clientWidth || 800)),
+    height: Math.max(1, Math.floor(rect.height || parentRect?.height || canvas.clientHeight || 500)),
+  };
 }
 
 export function useThreeScene(canvasRef: React.RefObject<HTMLCanvasElement | null>) {
@@ -99,157 +393,231 @@ export function useThreeScene(canvasRef: React.RefObject<HTMLCanvasElement | nul
   const raycasterRef = useRef(new THREE.Raycaster());
   const mouseRef = useRef(new THREE.Vector2());
   const clickCallbackRef = useRef<((id: string) => void) | null>(null);
+  const canvasElRef = useRef<HTMLCanvasElement | null>(null);
+  const mixamoTemplateRef = useRef<MixamoTemplate | null>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+    canvasElRef.current = canvas;
 
-    // Scene
+    RectAreaLightUniformsLib.init();
+
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0a0e1a);
-    scene.fog = new THREE.Fog(0x0a0e1a, 400, 800);
+    scene.background = new THREE.Color(0xf8fafc);
+    scene.fog = null;
     sceneRef.current = scene;
 
-    // Camera
-    const aspect = canvas.clientWidth / canvas.clientHeight || 1;
+    const initialSize = getCanvasRenderSize(canvas);
+    const aspect = initialSize.width / initialSize.height || 1;
     const camera = new THREE.PerspectiveCamera(45, aspect, 0.1, 2000);
-    camera.position.set(0, 600, 600); // start high for cinematic entry
+    camera.position.set(0, 600, 600);
     camera.lookAt(0, 0, 0);
     cameraRef.current = camera;
 
-    // Renderer
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: false });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 0.85;
+    renderer.setSize(initialSize.width, initialSize.height, false);
     rendererRef.current = renderer;
 
-    // Controls
+    const pmremGenerator = new THREE.PMREMGenerator(renderer);
+    const environmentScene = new RoomEnvironment();
+    const environmentTexture = pmremGenerator.fromScene(environmentScene, 0.04).texture;
+    scene.environment = environmentTexture;
+    pmremGenerator.dispose();
+
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enablePan = true;
     controls.enableZoom = true;
     controls.enableRotate = true;
     controls.minPolarAngle = Math.PI / 6;
-    controls.maxPolarAngle = Math.PI / 2.2;
+    controls.maxPolarAngle = Math.PI / 2.8;
     controls.minDistance = 80;
     controls.maxDistance = 600;
     controls.target.set(0, 0, 0);
     controlsRef.current = controls;
 
-    // Lighting
-    const ambient = new THREE.AmbientLight(0x1a2040, 0.8);
+    const ambient = new THREE.AmbientLight(0xffffff, 0.55);
     scene.add(ambient);
 
-    const keyLight = new THREE.DirectionalLight(0x4080ff, 1.2);
-    keyLight.position.set(100, 200, 100);
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0xe2e8f0, 0.45);
+    scene.add(hemiLight);
+
+    const keyLight = new THREE.DirectionalLight(0xffffff, 1.0);
+    keyLight.position.set(150, 300, 150);
     keyLight.castShadow = true;
+    keyLight.shadow.camera.left = -350;
+    keyLight.shadow.camera.right = 350;
+    keyLight.shadow.camera.top = 250;
+    keyLight.shadow.camera.bottom = -250;
     keyLight.shadow.camera.far = 800;
     keyLight.shadow.mapSize.set(2048, 2048);
+    keyLight.shadow.bias = -0.001;
     scene.add(keyLight);
 
-    const fillLight = new THREE.DirectionalLight(0xff6030, 0.4);
-    fillLight.position.set(-100, 150, -100);
+    const fillLight = new THREE.DirectionalLight(0xdde4ff, 0.25);
+    fillLight.position.set(-100, 200, -100);
     scene.add(fillLight);
 
-    const centerLight = new THREE.PointLight(0x00aaff, 0.6, 300);
-    centerLight.position.set(0, 100, 0);
-    scene.add(centerLight);
+    TERMINAL_ZONES.filter((zone) => zone.type === "corridor").forEach((zone) => {
+      const corridorLight = new THREE.RectAreaLight(0xffffff, 0.7, zone.width, 5);
+      corridorLight.position.set(zone.x, WALL_HEIGHT + 18, zone.z);
+      corridorLight.lookAt(zone.x, 0, zone.z);
+      scene.add(corridorLight);
+    });
 
-    // Floor
+    const marbleTexture = createMarbleTexture();
     const floorGeo = new THREE.PlaneGeometry(700, 400);
-    const floorMat = new THREE.MeshLambertMaterial({ color: 0x0a0e1a });
+    const floorMat = createStandardMaterial({ color: 0xd9e0e8, map: marbleTexture });
     const floor = new THREE.Mesh(floorGeo, floorMat);
     floor.rotation.x = -Math.PI / 2;
     floor.position.y = 0;
     floor.receiveShadow = true;
     scene.add(floor);
 
-    // Grid
-    const grid = new THREE.GridHelper(700, 70, 0x1a2040, 0x111828);
-    grid.position.y = 0.5;
+    const grid = new THREE.GridHelper(700, 70, 0xb0b8c4, 0xd0d5dd);
+    grid.position.y = 0.3;
     scene.add(grid);
 
-    // Terminal zones
     TERMINAL_ZONES.forEach((zone) => {
-      // Floor slab
-      const slabGeo = new THREE.BoxGeometry(zone.width, 2, zone.depth);
-      const slabMat = new THREE.MeshLambertMaterial({ color: zone.color });
+      const slabGeo = new THREE.BoxGeometry(zone.width, 4, zone.depth);
+      const slabMat = createStandardMaterial({ color: zone.color, emissive: getZoneEdgeColor(zone.type), emissiveIntensity: 0.035 });
       const slab = new THREE.Mesh(slabGeo, slabMat);
-      slab.position.set(zone.x, 1, zone.z);
+      slab.position.set(zone.x, 2, zone.z);
       slab.receiveShadow = true;
+      slab.castShadow = true;
       scene.add(slab);
       zoneMeshesRef.current.set(zone.id, slab);
 
-      // Low transparent walls
+      const wallColor = getZoneWallColor(zone.type);
       const wallGeo = new THREE.BoxGeometry(zone.width, WALL_HEIGHT, zone.depth);
-      const wallMat = new THREE.MeshLambertMaterial({
-        color: zone.color,
+      const wallMat = createStandardMaterial({
+        color: wallColor,
         transparent: true,
-        opacity: 0.15,
+        opacity: 0.22,
       });
       const wall = new THREE.Mesh(wallGeo, wallMat);
-      wall.position.set(zone.x, WALL_HEIGHT / 2 + 2, zone.z);
+      wall.position.set(zone.x, WALL_HEIGHT / 2 + 4, zone.z);
       scene.add(wall);
 
-      // Neon edge lines
+      const edgeColor = getZoneEdgeColor(zone.type);
       const edgesGeo = new THREE.EdgesGeometry(new THREE.BoxGeometry(zone.width, WALL_HEIGHT, zone.depth));
-      const edgesMat = new THREE.LineBasicMaterial({ color: 0x2244aa });
+      const edgesMat = new THREE.LineBasicMaterial({ color: edgeColor, linewidth: 2 });
       const edges = new THREE.LineSegments(edgesGeo, edgesMat);
-      edges.position.set(zone.x, WALL_HEIGHT / 2 + 2, zone.z);
+      edges.position.set(zone.x, WALL_HEIGHT / 2 + 4, zone.z);
       scene.add(edges);
+
+      const bottomEdgesGeo = new THREE.EdgesGeometry(new THREE.BoxGeometry(zone.width, 0.5, zone.depth));
+      const bottomEdgesMat = new THREE.LineBasicMaterial({ color: edgeColor });
+      const bottomEdges = new THREE.LineSegments(bottomEdgesGeo, bottomEdgesMat);
+      bottomEdges.position.set(zone.x, 4.5, zone.z);
+      scene.add(bottomEdges);
     });
 
-    // Zone labels
     TERMINAL_ZONES.forEach((zone) => {
-      const canvas = document.createElement("canvas");
-      canvas.width = 256;
-      canvas.height = 64;
-      const ctx = canvas.getContext("2d")!;
-      ctx.clearRect(0, 0, 256, 64);
-      ctx.font = "bold 20px Inter, sans-serif";
-      ctx.fillStyle = "#ffffff";
-      ctx.textAlign = "center";
-      ctx.globalAlpha = 0.7;
-      ctx.fillText(zone.label, 128, 40);
+      const labelCanvas = document.createElement("canvas");
+      labelCanvas.width = 512;
+      labelCanvas.height = 128;
+      const ctx = labelCanvas.getContext("2d")!;
+      ctx.clearRect(0, 0, 512, 128);
 
-      const texture = new THREE.CanvasTexture(canvas);
-      const labelGeo = new THREE.PlaneGeometry(zone.width * 0.6, 10);
+      ctx.font = "bold 22px Inter, sans-serif";
+      const textWidth = ctx.measureText(zone.label).width;
+      const pillW = Math.max(textWidth + 40, 120);
+      const pillX = (512 - pillW) / 2;
+
+      ctx.fillStyle = "rgba(255,255,255,0.85)";
+      ctx.beginPath();
+      ctx.roundRect(pillX, 30, pillW, 48, 12);
+      ctx.fill();
+
+      const edgeColor = getZoneEdgeColor(zone.type);
+      const edgeHex = `#${edgeColor.toString(16).padStart(6, "0")}`;
+      ctx.strokeStyle = edgeHex;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(pillX, 30, pillW, 48, 12);
+      ctx.stroke();
+
+      ctx.fillStyle = "#1e293b";
+      ctx.textAlign = "center";
+      ctx.fillText(zone.label, 256, 62);
+
+      const texture = new THREE.CanvasTexture(labelCanvas);
+      const labelGeo = new THREE.PlaneGeometry(zone.width * 0.7, 14);
       const labelMat = new THREE.MeshBasicMaterial({
         map: texture,
         transparent: true,
         depthWrite: false,
       });
       const label = new THREE.Mesh(labelGeo, labelMat);
-      label.position.set(zone.x, 12, zone.z);
+      label.position.set(zone.x, 14, zone.z);
       label.rotation.x = -Math.PI / 2;
       scene.add(label);
       labelMeshesRef.current.push(label);
     });
 
-    // Cinematic entry
+    let disposed = false;
+    new GLTFLoader().load(
+      MIXAMO_CHARACTER_URL,
+      (gltf) => {
+        if (disposed) return;
+        mixamoTemplateRef.current = { scene: gltf.scene, animations: gltf.animations };
+      },
+      undefined,
+      (error) => {
+        console.warn(`Failed to load Mixamo walking character at ${MIXAMO_CHARACTER_URL}`, error);
+      },
+    );
+
     gsap.fromTo(
       camera.position,
       { x: 0, y: 600, z: 600 },
       { x: 0, y: 280, z: 220, duration: 2.5, ease: "power3.out" }
     );
-    gsap.fromTo(
-      canvas,
-      { opacity: 0 },
-      { opacity: 1, duration: 1.5, ease: "power2.out" }
-    );
 
-    // Resize handler
     const onResize = () => {
-      const w = canvas.clientWidth;
-      const h = canvas.clientHeight;
+      const { width: w, height: h } = getCanvasRenderSize(canvas);
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
-      renderer.setSize(w, h);
+      renderer.setSize(w, h, false);
     };
     window.addEventListener("resize", onResize);
+    requestAnimationFrame(onResize);
 
-    // Click detection
+    const onMouseMove = (e: MouseEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      mouseRef.current.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      mouseRef.current.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+      raycasterRef.current.setFromCamera(mouseRef.current, camera);
+
+      const allMeshes: THREE.Object3D[] = [];
+      passengerMapRef.current.forEach((pg) => {
+        pg.group.traverse((child) => {
+          if ((child as THREE.Mesh).isMesh) allMeshes.push(child);
+        });
+      });
+
+      const intersects = raycasterRef.current.intersectObjects(allMeshes, false);
+      if (intersects.length > 0) {
+        let obj: THREE.Object3D | null = intersects[0].object;
+        while (obj) {
+          if (obj.userData?.passengerId) {
+            canvas.style.cursor = "pointer";
+            return;
+          }
+          obj = obj.parent;
+        }
+      }
+      canvas.style.cursor = "default";
+    };
+    canvas.addEventListener("mousemove", onMouseMove);
+
     const onClick = (e: MouseEvent) => {
       const rect = canvas.getBoundingClientRect();
       mouseRef.current.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
@@ -275,107 +643,60 @@ export function useThreeScene(canvasRef: React.RefObject<HTMLCanvasElement | nul
         }
       }
     };
-    canvas.addEventListener("mousedown", onClick);
+    canvas.addEventListener("click", onClick);
 
-    // Animation loop
+    const clock = new THREE.Clock();
     renderer.setAnimationLoop(() => {
+      const delta = clock.getDelta();
+      passengerMapRef.current.forEach((pg) => pg.mixer?.update(delta));
       controls.update();
       renderer.render(scene, camera);
     });
 
     return () => {
+      disposed = true;
       window.removeEventListener("resize", onResize);
-      canvas.removeEventListener("mousedown", onClick);
+      canvas.removeEventListener("mousemove", onMouseMove);
+      canvas.removeEventListener("click", onClick);
       renderer.setAnimationLoop(null);
+      environmentTexture.dispose();
+      marbleTexture.dispose();
       renderer.dispose();
       controls.dispose();
     };
   }, [canvasRef]);
 
-  // Sync passengers
   const syncPassengers = useCallback(
     (passengers: Passenger[], onClick: (id: string) => void) => {
       const scene = sceneRef.current;
       if (!scene) return;
       clickCallbackRef.current = onClick;
 
-      const now = Date.now();
-
       passengers.forEach((p) => {
         let pg = passengerMapRef.current.get(p.id);
 
         if (!pg) {
-          // Create new passenger group
           const group = new THREE.Group();
           group.userData.passengerId = p.id;
 
-          // Shadow disc
-          const shadowGeo = new THREE.CircleGeometry(5, 16);
-          const shadowMat = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.3 });
-          const shadow = new THREE.Mesh(shadowGeo, shadowMat);
-          shadow.rotation.x = -Math.PI / 2;
-          shadow.position.y = 0.1;
-          group.add(shadow);
+          const fallbackHuman = createFallbackHuman(p);
+          group.add(fallbackHuman.group);
 
-          // Legs
-          const legColor = darkenColor(p.shirtColor, 0.6);
-          const legGeo = new THREE.CylinderGeometry(1, 1, 8, 8);
-          const legMatL = new THREE.MeshLambertMaterial({ color: legColor });
-          const legMatR = new THREE.MeshLambertMaterial({ color: legColor });
-          const legL = new THREE.Mesh(legGeo, legMatL);
-          const legR = new THREE.Mesh(legGeo, legMatR);
-          legL.position.set(-2, 4, 0);
-          legR.position.set(2, 4, 0);
-          legL.castShadow = true;
-          legR.castShadow = true;
-          group.add(legL);
-          group.add(legR);
-
-          // Body
-          const bodyGeo = new THREE.CylinderGeometry(3, 3.5, 10, 12);
-          const bodyMat = new THREE.MeshLambertMaterial({ color: p.shirtColor });
-          const body = new THREE.Mesh(bodyGeo, bodyMat);
-          body.position.y = 13;
-          body.castShadow = true;
-          group.add(body);
-
-          // Head
-          const headGeo = new THREE.SphereGeometry(4, 16, 16);
-          const headMat = new THREE.MeshLambertMaterial({ color: getSkinTone(p.nationality) });
-          const head = new THREE.Mesh(headGeo, headMat);
-          head.position.y = 21;
-          head.castShadow = true;
-          group.add(head);
-
-          // Eyes
-          const eyeGeo = new THREE.SphereGeometry(0.6, 8, 8);
-          const eyeMat = new THREE.MeshBasicMaterial({ color: 0x111111 });
-          const eyeL = new THREE.Mesh(eyeGeo, eyeMat);
-          const eyeR = new THREE.Mesh(eyeGeo, eyeMat);
-          eyeL.position.set(-1.5, 22, 3.5);
-          eyeR.position.set(1.5, 22, 3.5);
-          group.add(eyeL);
-          group.add(eyeR);
-
-          // Name badge
           const badgeCanvas = createNameBadgeCanvas(p.id, p.status);
           const badgeTexture = new THREE.CanvasTexture(badgeCanvas);
-          const badgeGeo = new THREE.PlaneGeometry(16, 4);
-          const badgeMat = new THREE.MeshBasicMaterial({ map: badgeTexture, transparent: true, depthWrite: false });
+          const badgeMat = new THREE.SpriteMaterial({ map: badgeTexture, transparent: true, depthWrite: false });
           const badge = new THREE.Sprite(badgeMat);
-          badge.position.set(0, 30, 0);
-          badge.scale.set(16, 4, 1);
+          badge.position.set(0, 36, 0);
+          badge.scale.set(18, 5, 1);
           group.add(badge);
 
-          // Status ring
-          const ringGeo = new THREE.TorusGeometry(5, 0.5, 8, 32);
+          const ringGeo = new THREE.TorusGeometry(6, 0.7, 8, 32);
           const ringMat = new THREE.MeshBasicMaterial({ color: getStatusColor(p.status) });
           const ring = new THREE.Mesh(ringGeo, ringMat);
           ring.rotation.x = -Math.PI / 2;
           ring.position.y = 0.5;
           group.add(ring);
 
-          // Trail line
           const maxTrail = 40 * 3;
           const trailPositions = new Float32Array(maxTrail);
           const trailColors = new Float32Array(maxTrail);
@@ -392,14 +713,17 @@ export function useThreeScene(canvasRef: React.RefObject<HTMLCanvasElement | nul
           scene.add(trailLine);
 
           scene.add(group);
-          pg = { group, legL, legR, nameBadge: badge, statusRing: ring, trailLine, trailPositions, trailColors };
+          pg = { group, model: null, mixer: null, fallbackHuman, nameBadge: badge, statusRing: ring, trailLine, trailPositions, trailColors };
           passengerMapRef.current.set(p.id, pg);
         }
 
-        // Update position
+        const template = mixamoTemplateRef.current;
+        if (template && !pg.model) {
+          attachMixamoModel(pg, template, p);
+        }
+
         pg.group.position.set(p.position[0], 0, p.position[1]);
 
-        // Face direction
         if (p.trail.length >= 2) {
           const prev = p.trail[p.trail.length - 2];
           const curr = p.trail[p.trail.length - 1];
@@ -407,21 +731,25 @@ export function useThreeScene(canvasRef: React.RefObject<HTMLCanvasElement | nul
           pg.group.rotation.y = -angle + Math.PI / 2;
         }
 
-        // Leg animation
-        const legSwing = Math.sin(now * 0.008 + p.id.charCodeAt(4) * 10) * 0.3;
-        pg.legL.rotation.x = p.status === "boarded" ? 0 : legSwing;
-        pg.legR.rotation.x = p.status === "boarded" ? 0 : -legSwing;
+        const now = performance.now();
+        const phase = now * 0.008 + p.id.charCodeAt(p.id.length - 1) * 10;
+        const legSwing = Math.sin(phase) * 0.4;
+        const armSwing = Math.sin(phase) * 0.3;
+        pg.fallbackHuman.legL.rotation.x = legSwing;
+        pg.fallbackHuman.legR.rotation.x = -legSwing;
+        pg.fallbackHuman.armL.rotation.x = -armSwing;
+        pg.fallbackHuman.armR.rotation.x = armSwing;
+        pg.fallbackHuman.group.position.y = Math.abs(Math.sin(now * 0.01 + phase)) * 0.5;
 
-        // Status ring color
         (pg.statusRing.material as THREE.MeshBasicMaterial).color.setHex(getStatusColor(p.status));
         pg.statusRing.rotation.z += 0.01;
 
-        // Name badge
         const badgeCanvas = createNameBadgeCanvas(p.id, p.status);
-        (pg.nameBadge.material as THREE.SpriteMaterial).map = new THREE.CanvasTexture(badgeCanvas);
-        (pg.nameBadge.material as THREE.SpriteMaterial).map!.needsUpdate = true;
+        const badgeMaterial = pg.nameBadge.material as THREE.SpriteMaterial;
+        badgeMaterial.map?.dispose();
+        badgeMaterial.map = new THREE.CanvasTexture(badgeCanvas);
+        badgeMaterial.map.needsUpdate = true;
 
-        // Trail
         pg.trailLine.visible = trailsRef.current;
         if (p.trail.length > 1) {
           const posArr = pg.trailPositions;
@@ -448,7 +776,6 @@ export function useThreeScene(canvasRef: React.RefObject<HTMLCanvasElement | nul
     []
   );
 
-  // Heatmap
   const setHeatmap = useCallback((fn: (v: boolean) => boolean) => {
     const newVal = fn(heatmapRef.current);
     heatmapRef.current = newVal;
@@ -456,27 +783,25 @@ export function useThreeScene(canvasRef: React.RefObject<HTMLCanvasElement | nul
     zoneMeshesRef.current.forEach((mesh, id) => {
       const zone = TERMINAL_ZONES.find((z) => z.id === id);
       if (!zone) return;
+      const material = mesh.material as THREE.MeshStandardMaterial;
       if (newVal) {
-        (mesh.material as THREE.MeshLambertMaterial).color.lerp(new THREE.Color(0xff4400), 0.3);
+        material.color.lerp(new THREE.Color(0xff4400), 0.3);
       } else {
-        (mesh.material as THREE.MeshLambertMaterial).color.set(zone.color);
+        material.color.set(zone.color);
       }
     });
   }, []);
 
-  // Trails toggle
   const setTrails = useCallback((fn: (v: boolean) => boolean) => {
     trailsRef.current = fn(trailsRef.current);
   }, []);
 
-  // Labels toggle
   const setLabels = useCallback((fn: (v: boolean) => boolean) => {
     const newVal = fn(labelsRef.current);
     labelsRef.current = newVal;
     labelMeshesRef.current.forEach((m) => (m.visible = newVal));
   }, []);
 
-  // Fly to passenger
   const flyToPassenger = useCallback((id: string) => {
     const pg = passengerMapRef.current.get(id);
     const camera = cameraRef.current;
@@ -500,7 +825,6 @@ export function useThreeScene(canvasRef: React.RefObject<HTMLCanvasElement | nul
     });
   }, []);
 
-  // Reset camera
   const resetCamera = useCallback(() => {
     const camera = cameraRef.current;
     const controls = controlsRef.current;

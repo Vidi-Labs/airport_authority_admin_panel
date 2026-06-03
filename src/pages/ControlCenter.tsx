@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 
 import { DURATION, CURVES } from '@/lib/animations';
+import { AirportMapModule } from '@/components/AirportMap/AirportMapModule';
 
 function el(index: number) {
   const delay = index * DURATION.stagger;
@@ -118,14 +119,14 @@ export default function ControlCenter() {
 
       {/* Main Content */}
       <div className="flex-1 flex gap-4 min-h-0">
-        {/* Element 2: Map Area */}
+        {/* Element 2: Map Area — now with live 3D map */}
         <motion.div {...el(2)} className="flex-[3] min-w-0">
           <div className="h-full rounded-xl border border-slate-100 bg-white overflow-hidden relative">
             <div className="flex items-center justify-between px-4 py-3 border-b border-slate-50">
               <div className="flex items-center gap-2">
                 <MapPin size={14} className="text-slate-400" />
                 <span className="text-xs font-medium text-slate-600">
-                  Interactive Map {activeTool && `- ${TOOLS.find(t => t.id === activeTool)?.label} Tool Active`}
+                  Live Terminal Map {activeTool && `- ${TOOLS.find(t => t.id === activeTool)?.label} Tool Active`}
                 </span>
               </div>
               {activeTool && (
@@ -135,36 +136,9 @@ export default function ControlCenter() {
               )}
             </div>
 
-            <div className="absolute inset-0 top-[45px] flex items-center justify-center">
-              <div className="flex flex-col items-center gap-4">
-                <div className="w-20 h-20 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center">
-                  <MapPin size={32} className="text-slate-300" />
-                </div>
-                <div className="text-center">
-                  <p className="text-sm font-medium text-slate-400">Terminal Map Editor</p>
-                  <p className="text-xs text-slate-300 mt-1">
-                    {activeTool
-                      ? `Select a location to place ${TOOLS.find(t => t.id === activeTool)?.label.toLowerCase()}`
-                      : 'Select a tool from the toolbar to begin editing'}
-                  </p>
-                </div>
-                <div className="flex items-center gap-3 mt-2">
-                  {EXISTING_ITEMS.map(item => {
-                    const tool = TOOLS.find(t => t.id === item.type);
-                    if (!tool) return null;
-                    const Icon = tool.icon;
-                    return (
-                      <div
-                        key={item.id}
-                        className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg ${tool.bg} border border-current/10`}
-                      >
-                        <Icon size={12} className={tool.color} />
-                        <span className={`text-[10px] font-medium ${tool.color}`}>{item.name}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
+            {/* 3D Airport Map */}
+            <div className="absolute inset-0 top-[45px]">
+              <AirportMapModule />
             </div>
           </div>
         </motion.div>

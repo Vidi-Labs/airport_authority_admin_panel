@@ -28,8 +28,6 @@ export function usePassengerSimulation() {
     const interval = setInterval(() => {
       setPassengers((prev) =>
         prev.map((p) => {
-          if (p.status === "boarded") return p;
-
           const speed = p.id === "PAX-003" ? 0.8 : p.id === "PAX-010" ? 2.0 : 1.5;
           const targetIdx = Math.min(p.pathIndex + 1, p.pathPoints.length - 1);
           const target = p.pathPoints[targetIdx];
@@ -47,8 +45,10 @@ export function usePassengerSimulation() {
             // Reached waypoint
             newPathIndex = p.pathIndex + 1;
             if (newPathIndex >= p.pathPoints.length) {
-              newStatus = "boarded";
-              newPos = [...target];
+              // Loop back to start instead of stopping
+              newPathIndex = 0;
+              newPos = [...p.pathPoints[0]] as [number, number];
+              newStatus = "navigating";
             } else {
               newPos = [...current];
             }

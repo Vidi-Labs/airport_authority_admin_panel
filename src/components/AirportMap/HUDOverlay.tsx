@@ -32,6 +32,13 @@ export function HUDOverlay({
   const [labelsActive, setLabelsActive] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  // Auto-open sidebar when a passenger is selected
+  useEffect(() => {
+    if (selectedId) {
+      setSidebarOpen(true);
+    }
+  }, [selectedId]);
+
   useEffect(() => {
     const iv = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(iv);
@@ -51,11 +58,11 @@ export function HUDOverlay({
     <div className="absolute inset-0 z-10 pointer-events-none" style={{ fontFamily: "'Sora', 'Inter', sans-serif" }}>
       {/* Top-Left: Terminal Info */}
       <div className="absolute top-3 left-3 flex items-center gap-2 px-3 py-2 rounded-lg pointer-events-auto"
-        style={{ background: "rgba(8,12,28,0.8)", border: "1px solid rgba(255,255,255,0.08)", backdropFilter: "blur(12px)" }}>
+        style={{ background: "rgba(255,255,255,0.9)", border: "1px solid rgba(0,0,0,0.08)", backdropFilter: "blur(12px)", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
         <span className="text-xs">&#9992;</span>
-        <span className="text-[11px] text-white font-medium">Terminal 2 — Live Operations</span>
+        <span className="text-[11px] text-slate-700 font-medium">Terminal 2 — Live Operations</span>
         <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: "#22ff88" }} />
-        <span className="text-[10px] font-mono text-slate-400 ml-1">{formatTime(time)}</span>
+        <span className="text-[10px] font-mono text-slate-500 ml-1">{formatTime(time)}</span>
       </div>
 
       {/* Top-Right: Passenger Counts */}
@@ -70,10 +77,11 @@ export function HUDOverlay({
             key={chip.label}
             className="px-2.5 py-1.5 rounded-lg text-[10px] font-medium"
             style={{
-              background: chip.pulse ? "rgba(255,68,68,0.2)" : "rgba(8,12,28,0.8)",
-              border: `1px solid ${chip.pulse ? "#ff444440" : "rgba(255,255,255,0.08)"}`,
+              background: chip.pulse ? "rgba(255,68,68,0.08)" : "rgba(255,255,255,0.9)",
+              border: `1px solid ${chip.pulse ? "#ff444430" : "rgba(0,0,0,0.08)"}`,
               color: chip.color,
               backdropFilter: "blur(12px)",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
               animation: chip.pulse ? "pulse 1.5s ease-in-out infinite" : "none",
             }}
           >
@@ -84,12 +92,12 @@ export function HUDOverlay({
 
       {/* Bottom-Left: Legend */}
       <div className="absolute bottom-3 left-3 px-3 py-2 rounded-lg pointer-events-auto"
-        style={{ background: "rgba(8,12,28,0.8)", border: "1px solid rgba(255,255,255,0.08)", backdropFilter: "blur(12px)" }}>
+        style={{ background: "rgba(255,255,255,0.9)", border: "1px solid rgba(0,0,0,0.08)", backdropFilter: "blur(12px)", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
         <div className="flex items-center gap-3">
           {Object.entries(STATUS_COLORS).map(([status, color]) => (
             <div key={status} className="flex items-center gap-1.5">
               <div className="w-2 h-2 rounded-full" style={{ background: color }} />
-              <span className="text-[9px] text-slate-400 capitalize">{status}</span>
+              <span className="text-[9px] text-slate-500 capitalize">{status}</span>
             </div>
           ))}
         </div>
@@ -107,10 +115,11 @@ export function HUDOverlay({
             onClick={btn.toggle}
             className="px-3 py-1.5 rounded-lg text-[11px] font-medium text-left transition-all"
             style={{
-              background: btn.active ? "rgba(34,170,255,0.15)" : "rgba(8,12,28,0.8)",
-              border: `1px solid ${btn.active ? "#22aaff40" : "rgba(255,255,255,0.08)"}`,
-              color: btn.active ? "#22aaff" : "#94a3b8",
+              background: btn.active ? "rgba(34,170,255,0.1)" : "rgba(255,255,255,0.9)",
+              border: `1px solid ${btn.active ? "#22aaff40" : "rgba(0,0,0,0.08)"}`,
+              color: btn.active ? "#22aaff" : "#64748b",
               backdropFilter: "blur(12px)",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
             }}
           >
             {btn.label}
@@ -123,8 +132,8 @@ export function HUDOverlay({
         {/* Toggle tab */}
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="w-6 h-16 rounded-r-lg flex items-center justify-center text-slate-400 hover:text-white transition-colors"
-          style={{ background: "rgba(8,12,28,0.8)", borderLeft: "1px solid rgba(255,255,255,0.08)" }}
+          className="w-6 h-16 rounded-r-lg flex items-center justify-center text-slate-400 hover:text-slate-700 transition-colors"
+          style={{ background: "rgba(255,255,255,0.9)", borderLeft: "1px solid rgba(0,0,0,0.08)", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}
         >
           <span className="text-[10px]">{sidebarOpen ? "\u25C0" : "\u25B6"}</span>
         </button>
@@ -134,33 +143,69 @@ export function HUDOverlay({
           <div
             className="max-h-[60vh] overflow-y-auto rounded-r-lg"
             style={{
-              background: "rgba(8,12,28,0.92)",
-              border: "1px solid rgba(255,255,255,0.08)",
+              background: "rgba(255,255,255,0.95)",
+              border: "1px solid rgba(0,0,0,0.08)",
               backdropFilter: "blur(12px)",
               width: 200,
+              boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
             }}
           >
-            <div className="px-3 py-2 border-b border-white/5">
-              <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">
+            <div className="px-3 py-2 border-b border-slate-100">
+              <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">
                 Passengers ({passengers.length})
               </span>
             </div>
-            {passengers.map((p) => (
-              <button
-                key={p.id}
-                onClick={() => onPassengerSelect(p.id)}
-                className="w-full text-left px-3 py-2 flex items-center gap-2 hover:bg-white/5 transition-colors"
-                style={{
-                  borderLeft: selectedId === p.id ? "2px solid #22aaff" : "2px solid transparent",
-                }}
-              >
-                <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: STATUS_COLORS[p.status] }} />
-                <div className="min-w-0">
-                  <p className="text-[11px] text-white truncate">{p.name}</p>
-                  <p className="text-[9px] text-slate-500">{p.flightNumber}</p>
+            {passengers.map((p) => {
+              const isSelected = selectedId === p.id;
+              const lastEvent = p.journeyLog[p.journeyLog.length - 1];
+              return (
+                <div key={p.id}>
+                  <button
+                    onClick={() => onPassengerSelect(p.id)}
+                    className="w-full text-left px-3 py-2 flex items-center gap-2 hover:bg-slate-50 transition-colors"
+                    style={{
+                      borderLeft: isSelected ? "2px solid #22aaff" : "2px solid transparent",
+                    }}
+                  >
+                    <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: STATUS_COLORS[p.status] }} />
+                    <div className="min-w-0">
+                      <p className="text-[11px] text-slate-700 truncate">{p.name}</p>
+                      <p className="text-[9px] text-slate-400">{p.flightNumber}</p>
+                    </div>
+                  </button>
+                  {isSelected && (
+                    <div className="px-3 pb-2 space-y-1.5">
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-1.5 h-1.5 rounded-full" style={{ background: STATUS_COLORS[p.status] }} />
+                        <span className="text-[10px] font-medium capitalize" style={{ color: STATUS_COLORS[p.status] }}>
+                          {p.status}
+                        </span>
+                      </div>
+                      <div className="text-[10px] text-slate-500">
+                        <span className="font-medium text-slate-600">Zone:</span> {p.currentZone}
+                      </div>
+                      <div className="text-[10px] text-slate-500">
+                        <span className="font-medium text-slate-600">Destination:</span> {p.destination} ({p.boardingGate})
+                      </div>
+                      <div className="text-[10px] text-slate-500">
+                        <span className="font-medium text-slate-600">ETA:</span> {p.eta}
+                      </div>
+                      {lastEvent && (
+                        <div className="text-[10px] text-slate-500">
+                          <span className="font-medium text-slate-600">Last:</span> {lastEvent.action}
+                          <span className="text-slate-400 ml-1">at {lastEvent.time}</span>
+                        </div>
+                      )}
+                      {p.journeyLog.length > 1 && (
+                        <div className="text-[10px] text-slate-400 italic">
+                          {p.journeyLog.length} stops recorded
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
-              </button>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
