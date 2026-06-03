@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { CURVES, DURATION } from '@/lib/animations';
 import {
   Flame,
   Layers,
@@ -46,7 +47,7 @@ function getDensityLabel(value: number): string {
 }
 
 function el(index: number) {
-  const delay = index * 0.45;
+  const delay = index * DURATION.stagger;
   return {
     initial: { opacity: 0, y: 20, scale: 0.97 },
     animate: {
@@ -55,10 +56,10 @@ function el(index: number) {
       scale: [0.97, 1.03, 0.99, 1],
       transition: {
         delay,
-        duration: 1.4,
-        ease: [0.16, 1, 0.3, 1],
+        duration: DURATION.page,
+        ease: CURVES.easeOutSmooth,
         opacity: { delay, duration: 1.8, ease: 'linear' },
-        scale: { delay, duration: 1.4, times: [0, 0.45, 0.7, 1], ease: [0.16, 1, 0.3, 1] },
+        scale: { delay, duration: DURATION.page, times: [0, 0.45, 0.7, 1], ease: CURVES.easeOutSmooth },
       },
     },
   };

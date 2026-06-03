@@ -16,7 +16,7 @@ interface Props {
 }
 
 export function PassengerDrawer({ passenger, isOpen, onClose }: Props) {
-  const [now, setNow] = useState(new Date());
+  const [, setNow] = useState(new Date());
 
   useEffect(() => {
     if (!isOpen) return;

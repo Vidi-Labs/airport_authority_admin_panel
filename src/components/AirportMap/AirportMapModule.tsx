@@ -8,7 +8,7 @@ import styles from "./AirportMap.module.css";
 export function AirportMapModule() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { passengers } = usePassengerSimulation();
-  const { syncPassengers, setHeatmap, setTrails, setLabels, flyToPassenger, resetCamera } = useThreeScene(canvasRef);
+  const { syncPassengers, setHeatmap, setTrails, setLabels, flyToPassenger } = useThreeScene(canvasRef);
   const [selectedPassengerId, setSelectedPassengerId] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const passengersRef = useRef(passengers);

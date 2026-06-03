@@ -1,9 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Brain, Check, X, Pencil, Filter, ChevronRight, TrendingUp,
-  Clock, Sparkles, MapPin, Zap, Shield, Eye, BarChart3,
-  ArrowUpRight, Activity,
+  Brain, Check, X, Pencil, Filter, ChevronRight,
+  Clock, Sparkles, MapPin, Zap, Shield, Eye, Activity,
 } from 'lucide-react';
 import { DURATION, CURVES } from '@/lib/animations';
 
@@ -119,7 +118,6 @@ function AnimatedBar({ value, color, delay = 0 }: { value: number; color: string
 export default function IntelligenceAlerts() {
   const [filter, setFilter] = useState('all');
   const [alerts, setAlerts] = useState(AI_ALERTS);
-  const [liveIndex, setLiveIndex] = useState(0);
   const [selectedAlert, setSelectedAlert] = useState<Alert | null>(null);
   const [editMode, setEditMode] = useState(false);
   const [editTitle, setEditTitle] = useState('');
@@ -132,8 +130,12 @@ export default function IntelligenceAlerts() {
   // Cycle through live activities
   useEffect(() => {
     const interval = setInterval(() => {
-      setLiveIndex(prev => (prev + 1) % LIVE_ACTIVITIES.length);
-    }, 3000);
+      const liveDot = document.getElementById('live-dot');
+      if (liveDot) {
+        liveDot.classList.toggle('opacity-100');
+        liveDot.classList.toggle('opacity-20');
+      }
+    }, 1500);
     return () => clearInterval(interval);
   }, []);
 

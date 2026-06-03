@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion';
-import { CURVES, DURATION } from '@/lib/animations';
 
 interface SkeletonProps {
   className?: string;

@@ -1,4 +1,3 @@
-import { memo } from 'react';
 import { motion } from 'framer-motion';
 import SpatialMap from '@/sections/SpatialMap';
 import TelemetryRibbon from '@/sections/TelemetryRibbon';
