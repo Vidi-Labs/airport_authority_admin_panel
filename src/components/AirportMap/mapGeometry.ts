@@ -309,38 +309,21 @@ export const AIRPORT_ZONES: SourceRect[] = [
     type: "corridor", color: "#b8d3ab", edgeColor: "#5f8a53", height3d: 9,
   },
 
-  // Gate pods — row 1 (top row)
-  { id: "gate-1",  label: "G1",  x: 178, y: 488, width: 96, height: 58, type: "landmark", color: "#e1ddcf", edgeColor: "#7e9070", height3d: 16 },
-  { id: "gate-2",  label: "G2",  x: 298, y: 488, width: 96, height: 58, type: "landmark", color: "#e1ddcf", edgeColor: "#7e9070", height3d: 16 },
-  { id: "gate-3",  label: "G3",  x: 418, y: 488, width: 96, height: 58, type: "landmark", color: "#e1ddcf", edgeColor: "#7e9070", height3d: 16 },
-  { id: "gate-4",  label: "G4",  x: 538, y: 488, width: 96, height: 58, type: "landmark", color: "#e1ddcf", edgeColor: "#7e9070", height3d: 16 },
-  { id: "gate-5",  label: "G5",  x: 658, y: 488, width: 96, height: 58, type: "landmark", color: "#e1ddcf", edgeColor: "#7e9070", height3d: 16 },
-
-  // Gate pods — row 2 (middle row)
-  { id: "gate-6",  label: "G6",  x: 178, y: 580, width: 96, height: 58, type: "landmark", color: "#e1ddcf", edgeColor: "#7e9070", height3d: 16 },
-  { id: "gate-7",  label: "G7",  x: 298, y: 580, width: 96, height: 58, type: "landmark", color: "#e1ddcf", edgeColor: "#7e9070", height3d: 16 },
-  { id: "gate-8",  label: "G8",  x: 418, y: 580, width: 96, height: 58, type: "landmark", color: "#e1ddcf", edgeColor: "#7e9070", height3d: 16 },
-  { id: "gate-9",  label: "G9",  x: 538, y: 580, width: 96, height: 58, type: "landmark", color: "#e1ddcf", edgeColor: "#7e9070", height3d: 16 },
-  { id: "gate-10", label: "G10", x: 658, y: 580, width: 96, height: 58, type: "landmark", color: "#e1ddcf", edgeColor: "#7e9070", height3d: 16 },
-
-  // Gate pods — row 3 (bottom row — new)
-  { id: "gate-11", label: "G11", x: 178, y: 660, width: 96, height: 52, type: "landmark", color: "#e1ddcf", edgeColor: "#7e9070", height3d: 16 },
-  { id: "gate-12", label: "G12", x: 298, y: 660, width: 96, height: 52, type: "landmark", color: "#e1ddcf", edgeColor: "#7e9070", height3d: 16 },
-  { id: "gate-13", label: "G13", x: 418, y: 660, width: 96, height: 52, type: "landmark", color: "#e1ddcf", edgeColor: "#7e9070", height3d: 16 },
-  { id: "gate-14", label: "G14", x: 538, y: 660, width: 96, height: 52, type: "landmark", color: "#e1ddcf", edgeColor: "#7e9070", height3d: 16 },
-  { id: "gate-15", label: "G15", x: 658, y: 660, width: 96, height: 52, type: "landmark", color: "#e1ddcf", edgeColor: "#7e9070", height3d: 16 },
-
-  // Vertical jetbridge corridors between gate rows (matching original image)
-  { id: "jetbridge-v-1", label: "Jetbridge", x: 185, y: 546, width: 22, height: 34, type: "corridor", color: "#c8c0b2", edgeColor: "#8b8173", height3d: 8 },
-  { id: "jetbridge-v-2", label: "Jetbridge", x: 305, y: 546, width: 22, height: 34, type: "corridor", color: "#c8c0b2", edgeColor: "#8b8173", height3d: 8 },
-  { id: "jetbridge-v-3", label: "Jetbridge", x: 425, y: 546, width: 22, height: 34, type: "corridor", color: "#c8c0b2", edgeColor: "#8b8173", height3d: 8 },
-  { id: "jetbridge-v-4", label: "Jetbridge", x: 545, y: 546, width: 22, height: 34, type: "corridor", color: "#c8c0b2", edgeColor: "#8b8173", height3d: 8 },
-  { id: "jetbridge-v-5", label: "Jetbridge", x: 665, y: 546, width: 22, height: 34, type: "corridor", color: "#c8c0b2", edgeColor: "#8b8173", height3d: 8 },
-  { id: "jetbridge-v-6", label: "Jetbridge", x: 185, y: 638, width: 22, height: 22, type: "corridor", color: "#c8c0b2", edgeColor: "#8b8173", height3d: 8 },
-  { id: "jetbridge-v-7", label: "Jetbridge", x: 305, y: 638, width: 22, height: 22, type: "corridor", color: "#c8c0b2", edgeColor: "#8b8173", height3d: 8 },
-  { id: "jetbridge-v-8", label: "Jetbridge", x: 425, y: 638, width: 22, height: 22, type: "corridor", color: "#c8c0b2", edgeColor: "#8b8173", height3d: 8 },
-  { id: "jetbridge-v-9", label: "Jetbridge", x: 545, y: 638, width: 22, height: 22, type: "corridor", color: "#c8c0b2", edgeColor: "#8b8173", height3d: 8 },
-  { id: "jetbridge-v-10", label: "Jetbridge", x: 665, y: 638, width: 22, height: 22, type: "corridor", color: "#c8c0b2", edgeColor: "#8b8173", height3d: 8 },
+  // Baggage reclaim belts — 14 vertical rectangular belts
+  { id: "belt-1",  label: "Belt 1",  x: 180, y: 510, width: 20, height: 120, type: "facility", color: "#e0b36a", edgeColor: "#9a6e2f", height3d: 10 },
+  { id: "belt-2",  label: "Belt 2",  x: 224, y: 510, width: 20, height: 120, type: "facility", color: "#e0b36a", edgeColor: "#9a6e2f", height3d: 10 },
+  { id: "belt-3",  label: "Belt 3",  x: 268, y: 510, width: 20, height: 120, type: "facility", color: "#e0b36a", edgeColor: "#9a6e2f", height3d: 10 },
+  { id: "belt-4",  label: "Belt 4",  x: 312, y: 510, width: 20, height: 120, type: "facility", color: "#e0b36a", edgeColor: "#9a6e2f", height3d: 10 },
+  { id: "belt-5",  label: "Belt 5",  x: 356, y: 510, width: 20, height: 120, type: "facility", color: "#e0b36a", edgeColor: "#9a6e2f", height3d: 10 },
+  { id: "belt-6",  label: "Belt 6",  x: 400, y: 510, width: 20, height: 120, type: "facility", color: "#e0b36a", edgeColor: "#9a6e2f", height3d: 10 },
+  { id: "belt-7",  label: "Belt 7",  x: 444, y: 510, width: 20, height: 120, type: "facility", color: "#e0b36a", edgeColor: "#9a6e2f", height3d: 10 },
+  { id: "belt-8",  label: "Belt 8",  x: 520, y: 510, width: 20, height: 120, type: "facility", color: "#e0b36a", edgeColor: "#9a6e2f", height3d: 10 },
+  { id: "belt-9",  label: "Belt 9",  x: 564, y: 510, width: 20, height: 120, type: "facility", color: "#e0b36a", edgeColor: "#9a6e2f", height3d: 10 },
+  { id: "belt-10", label: "Belt 10", x: 608, y: 510, width: 20, height: 120, type: "facility", color: "#e0b36a", edgeColor: "#9a6e2f", height3d: 10 },
+  { id: "belt-11", label: "Belt 11", x: 652, y: 510, width: 20, height: 120, type: "facility", color: "#e0b36a", edgeColor: "#9a6e2f", height3d: 10 },
+  { id: "belt-12", label: "Belt 12", x: 696, y: 510, width: 20, height: 120, type: "facility", color: "#e0b36a", edgeColor: "#9a6e2f", height3d: 10 },
+  { id: "belt-13", label: "Belt 13", x: 740, y: 510, width: 20, height: 120, type: "facility", color: "#e0b36a", edgeColor: "#9a6e2f", height3d: 10 },
+  { id: "belt-14", label: "Belt 14", x: 784, y: 510, width: 20, height: 120, type: "facility", color: "#e0b36a", edgeColor: "#9a6e2f", height3d: 10 },
 
   // Gate zone amenities (right side)
   {
@@ -435,34 +418,21 @@ export const AIRPORT_NODES: SourceNode[] = [
   { id: "beacon-right-2", label: "BLE Beacon", x: 1060, y: 428, radius: 5, type: "facility", color: "#2a2880" },
   { id: "beacon-right-3", label: "BLE Beacon", x: 1160, y: 428, radius: 5, type: "facility", color: "#2a2880" },
 
-  // Gate zone — row 1
-  { id: "beacon-gate-1",  label: "BLE Beacon", x: 226, y: 518, radius: 5, type: "facility", color: "#2a2880" },
-  { id: "beacon-gate-2",  label: "BLE Beacon", x: 346, y: 518, radius: 5, type: "facility", color: "#2a2880" },
-  { id: "beacon-gate-3",  label: "BLE Beacon", x: 466, y: 518, radius: 5, type: "facility", color: "#2a2880" },
-  { id: "beacon-gate-4",  label: "BLE Beacon", x: 586, y: 518, radius: 5, type: "facility", color: "#2a2880" },
-  { id: "beacon-gate-5",  label: "BLE Beacon", x: 706, y: 518, radius: 5, type: "facility", color: "#2a2880" },
-
-  // Gate zone — row 2
-  { id: "beacon-gate-6",  label: "BLE Beacon", x: 226, y: 610, radius: 5, type: "facility", color: "#2a2880" },
-  { id: "beacon-gate-7",  label: "BLE Beacon", x: 346, y: 610, radius: 5, type: "facility", color: "#2a2880" },
-  { id: "beacon-gate-8",  label: "BLE Beacon", x: 466, y: 610, radius: 5, type: "facility", color: "#2a2880" },
-  { id: "beacon-gate-9",  label: "BLE Beacon", x: 586, y: 610, radius: 5, type: "facility", color: "#2a2880" },
-  { id: "beacon-gate-10", label: "BLE Beacon", x: 706, y: 610, radius: 5, type: "facility", color: "#2a2880" },
-
-  // Gate zone — row 3 (new)
-  { id: "beacon-gate-11", label: "BLE Beacon", x: 226, y: 688, radius: 5, type: "facility", color: "#2a2880" },
-  { id: "beacon-gate-12", label: "BLE Beacon", x: 346, y: 688, radius: 5, type: "facility", color: "#2a2880" },
-  { id: "beacon-gate-13", label: "BLE Beacon", x: 466, y: 688, radius: 5, type: "facility", color: "#2a2880" },
-  { id: "beacon-gate-14", label: "BLE Beacon", x: 586, y: 688, radius: 5, type: "facility", color: "#2a2880" },
-  { id: "beacon-gate-15", label: "BLE Beacon", x: 706, y: 688, radius: 5, type: "facility", color: "#2a2880" },
-
-  // Gate zone corridor between rows
-  { id: "beacon-gate-mid-1", label: "BLE Beacon", x: 346, y: 565, radius: 5, type: "facility", color: "#2a2880" },
-  { id: "beacon-gate-mid-2", label: "BLE Beacon", x: 466, y: 565, radius: 5, type: "facility", color: "#2a2880" },
-  { id: "beacon-gate-mid-3", label: "BLE Beacon", x: 586, y: 565, radius: 5, type: "facility", color: "#2a2880" },
-  { id: "beacon-gate-mid-4", label: "BLE Beacon", x: 346, y: 650, radius: 5, type: "facility", color: "#2a2880" },
-  { id: "beacon-gate-mid-5", label: "BLE Beacon", x: 466, y: 650, radius: 5, type: "facility", color: "#2a2880" },
-  { id: "beacon-gate-mid-6", label: "BLE Beacon", x: 586, y: 650, radius: 5, type: "facility", color: "#2a2880" },
+  // Baggage reclaim belts
+  { id: "beacon-belt-1",  label: "BLE Beacon", x: 194, y: 575, radius: 5, type: "facility", color: "#2a2880" },
+  { id: "beacon-belt-2",  label: "BLE Beacon", x: 242, y: 575, radius: 5, type: "facility", color: "#2a2880" },
+  { id: "beacon-belt-3",  label: "BLE Beacon", x: 291, y: 575, radius: 5, type: "facility", color: "#2a2880" },
+  { id: "beacon-belt-4",  label: "BLE Beacon", x: 339, y: 575, radius: 5, type: "facility", color: "#2a2880" },
+  { id: "beacon-belt-5",  label: "BLE Beacon", x: 388, y: 575, radius: 5, type: "facility", color: "#2a2880" },
+  { id: "beacon-belt-6",  label: "BLE Beacon", x: 436, y: 575, radius: 5, type: "facility", color: "#2a2880" },
+  { id: "beacon-belt-7",  label: "BLE Beacon", x: 485, y: 575, radius: 5, type: "facility", color: "#2a2880" },
+  { id: "beacon-belt-8",  label: "BLE Beacon", x: 533, y: 575, radius: 5, type: "facility", color: "#2a2880" },
+  { id: "beacon-belt-9",  label: "BLE Beacon", x: 582, y: 575, radius: 5, type: "facility", color: "#2a2880" },
+  { id: "beacon-belt-10", label: "BLE Beacon", x: 630, y: 575, radius: 5, type: "facility", color: "#2a2880" },
+  { id: "beacon-belt-11", label: "BLE Beacon", x: 679, y: 575, radius: 5, type: "facility", color: "#2a2880" },
+  { id: "beacon-belt-12", label: "BLE Beacon", x: 727, y: 575, radius: 5, type: "facility", color: "#2a2880" },
+  { id: "beacon-belt-13", label: "BLE Beacon", x: 776, y: 575, radius: 5, type: "facility", color: "#2a2880" },
+  { id: "beacon-belt-14", label: "BLE Beacon", x: 824, y: 575, radius: 5, type: "facility", color: "#2a2880" },
 
   // Cargo building
   { id: "beacon-cargo-1", label: "BLE Beacon", x: 900, y: 580, radius: 5, type: "facility", color: "#2a2880" },

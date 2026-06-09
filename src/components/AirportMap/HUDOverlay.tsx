@@ -12,7 +12,6 @@ const STATUS_COLORS: Record<string, string> = {
 interface Props {
   passengers: Passenger[];
   onHeatmapToggle: () => void;
-  onTrailsToggle: () => void;
   onLabelsToggle: () => void;
   onZoomOutAll: () => void;
   zoomPercent: number;
@@ -27,7 +26,6 @@ interface Props {
 export function HUDOverlay({
   passengers,
   onHeatmapToggle,
-  onTrailsToggle,
   onLabelsToggle,
   onZoomOutAll,
   zoomPercent,
@@ -40,7 +38,6 @@ export function HUDOverlay({
 }: Props) {
   const [time, setTime] = useState(new Date());
   const [heatmapActive, setHeatmapActive] = useState(false);
-  const [trailsActive, setTrailsActive] = useState(true);
   const [labelsActive, setLabelsActive] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -176,7 +173,6 @@ export function HUDOverlay({
 
         {[
           { label: "Heatmap", active: heatmapActive, toggle: () => { setHeatmapActive(!heatmapActive); onHeatmapToggle(); } },
-          { label: "Trails", active: trailsActive, toggle: () => { setTrailsActive(!trailsActive); onTrailsToggle(); } },
           { label: "Labels", active: labelsActive, toggle: () => { setLabelsActive(!labelsActive); onLabelsToggle(); } },
         ].map((btn) => (
           <button

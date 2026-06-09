@@ -8,7 +8,7 @@ import styles from "./AirportMap.module.css";
 export function AirportMapModule() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { passengers } = usePassengerSimulation();
-  const { syncPassengers, setHeatmap, setTrails, setLabels, flyToPassenger, zoomToOverview, setZoomPercent, zoomIn, zoomOut, zoomPercent, viewMode } = useThreeScene(canvasRef);
+  const { syncPassengers, setHeatmap, setLabels, flyToPassenger, zoomToOverview, setZoomPercent, zoomIn, zoomOut, zoomPercent, viewMode } = useThreeScene(canvasRef);
   const [selectedPassengerId, setSelectedPassengerId] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -40,7 +40,6 @@ export function AirportMapModule() {
       <HUDOverlay
         passengers={passengers}
         onHeatmapToggle={() => setHeatmap((v) => !v)}
-        onTrailsToggle={() => setTrails((v) => !v)}
         onLabelsToggle={() => setLabels((v) => !v)}
         onZoomOutAll={zoomToOverview}
         zoomPercent={zoomPercent}

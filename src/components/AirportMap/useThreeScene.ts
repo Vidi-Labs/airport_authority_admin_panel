@@ -51,9 +51,6 @@ type PassengerMeshGroup = {
   fallbackHuman: FallbackHumanParts;
   nameBadge: THREE.Sprite;
   statusRing: THREE.Mesh;
-  trailLine: THREE.Line;
-  trailPositions: Float32Array;
-  trailColors: Float32Array;
   lastBadgeKey: string;
   userData?: {
     walkPhase: number;
@@ -1008,7 +1005,6 @@ export function useThreeScene(canvasRef: React.RefObject<HTMLCanvasElement | nul
   const passengerMapRef   = useRef<Map<string, PassengerMeshGroup>>(new Map());
   const zoneMeshesRef     = useRef<Map<string, THREE.Mesh>>(new Map());
   const heatmapRef        = useRef(false);
-  const trailsRef         = useRef(true);
   const labelsRef         = useRef(true);
   const labelMeshesRef    = useRef<THREE.Object3D[]>([]);
   const raycasterRef      = useRef(new THREE.Raycaster());
@@ -1049,7 +1045,6 @@ export function useThreeScene(canvasRef: React.RefObject<HTMLCanvasElement | nul
     nodeObjectsRef.current.forEach((obj)   => { obj.visible = clamped >= 100; });
     passengerMapRef.current.forEach((pg) => {
       pg.group.visible     = clamped >= 85;
-      pg.trailLine.visible = trailsRef.current;
       pg.nameBadge.visible = labelsRef.current && clamped >= 120;
     });
 
@@ -1572,18 +1567,9 @@ export function useThreeScene(canvasRef: React.RefObject<HTMLCanvasElement | nul
             ring.position.y = 0.5;
             group.add(ring);
 
-            const maxTrail      = 40 * 3;
-            const trailPositions = new Float32Array(maxTrail);
-            const trailColors    = new Float32Array(maxTrail);
-            const trailGeo       = new THREE.BufferGeometry();
-            trailGeo.setAttribute("position", new THREE.BufferAttribute(trailPositions, 3));
-            trailGeo.setAttribute("color",    new THREE.BufferAttribute(trailColors,    3));
-            const trailLine = new THREE.Line(trailGeo, new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.5 }));
-            trailLine.visible = trailsRef.current;
-            scene.add(trailLine);
             scene.add(group);
 
-            pg = { group, model: null, mixer: null, fallbackHuman, nameBadge: badge, statusRing: ring, trailLine, trailPositions, trailColors, lastBadgeKey: `${p.id}:${p.status}` };
+            pg = { group, model: null, mixer: null, fallbackHuman, nameBadge: badge, statusRing: ring, lastBadgeKey: `${p.id}:${p.status}` };
             passengerMapRef.current.set(p.id, pg);
           }
 
@@ -1640,25 +1626,6 @@ export function useThreeScene(canvasRef: React.RefObject<HTMLCanvasElement | nul
             pg.lastBadgeKey = badgeKey;
           }
 
-          pg.trailLine.visible = zoomPercentRef.current >= 85 && trailsRef.current;
-          if (p.trail.length > 1) {
-            const posArr = pg.trailPositions;
-            const colArr = pg.trailColors;
-            const len    = Math.min(p.trail.length, 40);
-            for (let i = 0; i < len; i++) {
-              posArr[i * 3]     = p.trail[i][0];
-              const floorY = getFloorHeightAtPosition(p.position[0], p.position[1]);
-              posArr[i * 3 + 1] = floorY + 0.8;
-              posArr[i * 3 + 2] = p.trail[i][1];
-              const alpha = i / len;
-              const c = new THREE.Color(p.shirtColor);
-              c.multiplyScalar(alpha * 0.7 + 0.3);
-              colArr[i * 3] = c.r; colArr[i * 3 + 1] = c.g; colArr[i * 3 + 2] = c.b;
-            }
-            pg.trailLine.geometry.setDrawRange(0, len);
-            pg.trailLine.geometry.attributes.position.needsUpdate = true;
-            pg.trailLine.geometry.attributes.color.needsUpdate    = true;
-          }
         });
       },
       []
@@ -1673,13 +1640,6 @@ export function useThreeScene(canvasRef: React.RefObject<HTMLCanvasElement | nul
       const mat = mesh.material as THREE.MeshStandardMaterial;
       if (newVal) mat.color.lerp(new THREE.Color(0xff2200), 0.6);
       else        mat.color.set(zone.color);
-    });
-  }, []);
-
-  const setTrails = useCallback((fn: (v: boolean) => boolean) => {
-    trailsRef.current = fn(trailsRef.current);
-    passengerMapRef.current.forEach((pg) => {
-      pg.trailLine.visible = zoomPercentRef.current >= 85 && trailsRef.current;
     });
   }, []);
 
@@ -1708,5 +1668,5 @@ export function useThreeScene(canvasRef: React.RefObject<HTMLCanvasElement | nul
   const resetCamera    = useCallback(() => { applyZoomPercent(DEFAULT_ZOOM_PERCENT,  true); }, [applyZoomPercent]);
   const zoomToOverview = useCallback(() => { applyZoomPercent(OVERVIEW_ZOOM_PERCENT, true); }, [applyZoomPercent]);
 
-  return { syncPassengers, setHeatmap, setTrails, setLabels, flyToPassenger, resetCamera, zoomToOverview, setZoomPercent, zoomIn, zoomOut, zoomPercent, viewMode };
+  return { syncPassengers, setHeatmap, setLabels, flyToPassenger, resetCamera, zoomToOverview, setZoomPercent, zoomIn, zoomOut, zoomPercent, viewMode };
 }
