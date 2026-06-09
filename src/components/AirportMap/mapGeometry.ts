@@ -253,25 +253,25 @@ export const AIRPORT_ZONES: SourceRect[] = [
   {
     id: "left-wing-corridor",
     label: "West Wing Corridor",
-    x: 0, y: 385, width: 280, height: 88,
+    x: -80, y: 385, width: 360, height: 88,
     type: "corridor", color: "#d4cec1", edgeColor: "#8b8173", height3d: 12,
   },
   {
     id: "left-wing-exit",
     label: "West Exit",
-    x: 0, y: 365, width: 72, height: 128,
+    x: -80, y: 365, width: 72, height: 128,
     type: "facility", color: "#c8c0b2", edgeColor: "#8b8173", height3d: 13,
   },
   {
     id: "left-wing-cafe",
     label: "Café Kiosk",
-    x: 80, y: 392, width: 78, height: 46,
+    x: 0, y: 392, width: 78, height: 46,
     type: "shop", color: "#b98357", edgeColor: "#7b4f30", height3d: 11,
   },
   {
     id: "left-wing-wc",
     label: "WC",
-    x: 170, y: 392, width: 48, height: 46,
+    x: 90, y: 392, width: 48, height: 46,
     type: "facility", color: "#9fc7d3", edgeColor: "#4f8596", height3d: 10,
   },
 
@@ -279,25 +279,25 @@ export const AIRPORT_ZONES: SourceRect[] = [
   {
     id: "right-wing-corridor",
     label: "East Wing Corridor",
-    x: 720, y: 385, width: 280, height: 88,
+    x: 720, y: 385, width: 360, height: 88,
     type: "corridor", color: "#d4cec1", edgeColor: "#8b8173", height3d: 12,
   },
   {
     id: "right-wing-exit",
     label: "East Exit",
-    x: 928, y: 365, width: 72, height: 128,
+    x: 1008, y: 365, width: 72, height: 128,
     type: "facility", color: "#c8c0b2", edgeColor: "#8b8173", height3d: 13,
   },
   {
     id: "right-wing-cafe",
     label: "Café Kiosk",
-    x: 780, y: 392, width: 78, height: 46,
+    x: 800, y: 392, width: 78, height: 46,
     type: "shop", color: "#b98357", edgeColor: "#7b4f30", height3d: 11,
   },
   {
     id: "right-wing-wc",
     label: "WC",
-    x: 870, y: 392, width: 48, height: 46,
+    x: 900, y: 392, width: 48, height: 46,
     type: "facility", color: "#9fc7d3", edgeColor: "#4f8596", height3d: 10,
   },
 
@@ -426,14 +426,14 @@ export const AIRPORT_NODES: SourceNode[] = [
   { id: "beacon-main-8",  label: "BLE Beacon", x: 720, y: 440, radius: 5, type: "facility", color: "#2a2880" },
 
   // Left wing (extended)
-  { id: "beacon-left-1",  label: "BLE Beacon", x: 60,  y: 428, radius: 5, type: "facility", color: "#2a2880" },
-  { id: "beacon-left-2",  label: "BLE Beacon", x: 140, y: 428, radius: 5, type: "facility", color: "#2a2880" },
-  { id: "beacon-left-3",  label: "BLE Beacon", x: 220, y: 428, radius: 5, type: "facility", color: "#2a2880" },
+  { id: "beacon-left-1",  label: "BLE Beacon", x: -20,  y: 428, radius: 5, type: "facility", color: "#2a2880" },
+  { id: "beacon-left-2",  label: "BLE Beacon", x: 60, y: 428, radius: 5, type: "facility", color: "#2a2880" },
+  { id: "beacon-left-3",  label: "BLE Beacon", x: 140, y: 428, radius: 5, type: "facility", color: "#2a2880" },
 
   // Right wing (extended)
-  { id: "beacon-right-1", label: "BLE Beacon", x: 780, y: 428, radius: 5, type: "facility", color: "#2a2880" },
-  { id: "beacon-right-2", label: "BLE Beacon", x: 860, y: 428, radius: 5, type: "facility", color: "#2a2880" },
-  { id: "beacon-right-3", label: "BLE Beacon", x: 940, y: 428, radius: 5, type: "facility", color: "#2a2880" },
+  { id: "beacon-right-1", label: "BLE Beacon", x: 800, y: 428, radius: 5, type: "facility", color: "#2a2880" },
+  { id: "beacon-right-2", label: "BLE Beacon", x: 880, y: 428, radius: 5, type: "facility", color: "#2a2880" },
+  { id: "beacon-right-3", label: "BLE Beacon", x: 960, y: 428, radius: 5, type: "facility", color: "#2a2880" },
 
   // Gate zone — row 1
   { id: "beacon-gate-1",  label: "BLE Beacon", x: 226, y: 518, radius: 5, type: "facility", color: "#2a2880" },

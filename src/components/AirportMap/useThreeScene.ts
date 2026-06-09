@@ -1370,43 +1370,7 @@ export function useThreeScene(canvasRef: React.RefObject<HTMLCanvasElement | nul
     // ── Google-Maps-level interior hall props (columns, benches, signs, strips)
     createHallInteriorProps(mapRoot, detailObjectsRef.current);
 
-    // ── Context geometry: tarmac, aircraft, glass facades, trusses, columns
-    const contextMat = createStandardMaterial({ color: 0x9aa4ad, roughness: 0.86, metalness: 0.02 });
-    const tarmac = new THREE.Mesh(new THREE.PlaneGeometry(airportBounds.width * 0.96, 380), contextMat);
-    tarmac.rotation.x = -Math.PI / 2;
-    tarmac.position.set(airportBounds.centerX, FLOOR_HEIGHT + 0.05, airportBounds.maxZ - 200);
-    tarmac.receiveShadow = true;
-    mapRoot.add(tarmac);
-
-    const runwayMat = createStandardMaterial({ color: 0x475569, roughness: 0.9 });
-    for (let i = 0; i < 3; i++) {
-      const road = new THREE.Mesh(new THREE.BoxGeometry(airportBounds.width * 0.7, 0.5, 10), runwayMat.clone());
-      road.position.set(airportBounds.centerX, 0.45, airportBounds.maxZ - 100 - i * 75);
-      road.receiveShadow = true;
-      mapRoot.add(road);
-    }
-
-    const aircraftMat = createStandardMaterial({ color: 0xf8fafc, metalness: 0.25, roughness: 0.28 });
-    for (const [ax, az, rot] of [
-      [-430, airportBounds.maxZ - 190, -0.18],
-      [-180, airportBounds.maxZ - 155,  0.08],
-      [100,  airportBounds.maxZ - 140,  0.05],
-      [380,  airportBounds.maxZ - 185,  0.16],
-      [580,  airportBounds.maxZ - 210, -0.12],
-    ] as const) {
-      const plane = new THREE.Group();
-      const body  = new THREE.Mesh(new THREE.CapsuleGeometry(9, 78, 10, 22), aircraftMat.clone());
-      body.rotation.z = Math.PI / 2; body.castShadow = true; plane.add(body);
-      const wing  = new THREE.Mesh(new THREE.BoxGeometry(86, 2.6, 15), aircraftMat.clone());
-      wing.castShadow = true; plane.add(wing);
-      const tail  = new THREE.Mesh(new THREE.BoxGeometry(22, 3, 22), createStandardMaterial({ color: 0x2563eb, metalness: 0.2, roughness: 0.35 }));
-      tail.position.x = -42; tail.castShadow = true; plane.add(tail);
-      plane.position.set(ax, 9, az);
-      plane.rotation.y = rot;
-      plane.scale.setScalar(1.35);
-      mapRoot.add(plane);
-      detailObjectsRef.current.push(plane);
-    }
+    // ── Context geometry: glass facades, trusses, columns
 
     const glassMat = createStandardMaterial({
       color: 0x9bd7ef, transparent: true, opacity: 0.28,
