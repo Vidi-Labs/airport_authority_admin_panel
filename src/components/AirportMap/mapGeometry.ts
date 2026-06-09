@@ -119,7 +119,7 @@ export const AIRPORT_ZONES: SourceRect[] = [
   {
     id: "jetbridge-horizontal-connector",
     label: "Glass Bridge",
-    x: 560, y: -250, width: 370, height: 42,
+    x: 560, y: -140, width: 370, height: 42,
     type: "corridor", color: "#cfe5ee", edgeColor: "#668797", height3d: 10,
   },
 
@@ -127,39 +127,39 @@ export const AIRPORT_ZONES: SourceRect[] = [
   {
     id: "remote-gate-building",
     label: "Remote Gate Building",
-    x: 890, y: 10, width: 100, height: 100,
+    x: 890, y: -160, width: 100, height: 100,
     type: "landmark", color: "#e2ddd2", edgeColor: "#83786b", height3d: 17,
   },
 
   // ── Remote gate building internal gates
   {
     id: "remote-gate-rg1", label: "RG1",
-    x: 896, y: 16, width: 40, height: 40,
+    x: 896, y: -184, width: 40, height: 40,
     type: "landmark", color: "#e8e4d8", edgeColor: "#7e9070", height3d: 14,
   },
   {
     id: "remote-gate-rg2", label: "RG2",
-    x: 944, y: 16, width: 40, height: 40,
+    x: 944, y: -184, width: 40, height: 40,
     type: "landmark", color: "#e8e4d8", edgeColor: "#7e9070", height3d: 14,
   },
   {
     id: "remote-gate-rg3", label: "RG3",
-    x: 896, y: 62, width: 40, height: 40,
+    x: 896, y: -138, width: 40, height: 40,
     type: "landmark", color: "#e8e4d8", edgeColor: "#7e9070", height3d: 14,
   },
   {
     id: "remote-gate-rg4", label: "RG4",
-    x: 944, y: 62, width: 40, height: 40,
+    x: 944, y: -138, width: 40, height: 40,
     type: "landmark", color: "#e8e4d8", edgeColor: "#7e9070", height3d: 14,
   },
   {
     id: "remote-gate-wc", label: "WC",
-    x: 896, y: 62, width: 30, height: 30,
+    x: 896, y: -138, width: 30, height: 30,
     type: "facility", color: "#9fc7d3", edgeColor: "#4f8596", height3d: 10,
   },
   {
     id: "remote-gate-cafe", label: "Café",
-    x: 940, y: 62, width: 44, height: 30,
+    x: 940, y: -138, width: 44, height: 30,
     type: "shop", color: "#b98357", edgeColor: "#7b4f30", height3d: 12,
   },
 
@@ -406,14 +406,14 @@ export const AIRPORT_NODES: SourceNode[] = [
   { id: "beacon-j-12", label: "BLE Beacon", x: 517, y: 160,  radius: 5, type: "facility", color: "#2a2880" },
 
   // Horizontal connector (extended right)
-  { id: "beacon-c-1", label: "BLE Beacon", x: 660, y: 76, radius: 5, type: "facility", color: "#2a2880" },
-  { id: "beacon-c-2", label: "BLE Beacon", x: 750, y: 76, radius: 5, type: "facility", color: "#2a2880" },
-  { id: "beacon-c-3", label: "BLE Beacon", x: 840, y: 76, radius: 5, type: "facility", color: "#2a2880" },
+  { id: "beacon-c-1", label: "BLE Beacon", x: 660, y: -119, radius: 5, type: "facility", color: "#2a2880" },
+  { id: "beacon-c-2", label: "BLE Beacon", x: 750, y: -119, radius: 5, type: "facility", color: "#2a2880" },
+  { id: "beacon-c-3", label: "BLE Beacon", x: 840, y: -119, radius: 5, type: "facility", color: "#2a2880" },
 
   // Remote gate building (repositioned)
-  { id: "beacon-rg-1", label: "BLE Beacon", x: 910, y: 35, radius: 5, type: "facility", color: "#2a2880" },
-  { id: "beacon-rg-2", label: "BLE Beacon", x: 960, y: 35, radius: 5, type: "facility", color: "#2a2880" },
-  { id: "beacon-rg-3", label: "BLE Beacon", x: 910, y: 85, radius: 5, type: "facility", color: "#2a2880" },
+  { id: "beacon-rg-1", label: "BLE Beacon", x: 910, y: -155, radius: 5, type: "facility", color: "#2a2880" },
+  { id: "beacon-rg-2", label: "BLE Beacon", x: 960, y: -155, radius: 5, type: "facility", color: "#2a2880" },
+  { id: "beacon-rg-3", label: "BLE Beacon", x: 910, y: -105, radius: 5, type: "facility", color: "#2a2880" },
 
   // Main hall — spread across pentagon interior
   { id: "beacon-main-1",  label: "BLE Beacon", x: 340, y: 290, radius: 5, type: "facility", color: "#2a2880" },
