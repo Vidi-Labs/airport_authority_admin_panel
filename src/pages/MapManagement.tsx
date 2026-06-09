@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   Map,
@@ -15,7 +15,9 @@ import {
   RotateCcw,
 } from 'lucide-react';
 import { CURVES, DURATION } from '@/lib/animations';
-import { AirportMapModule } from '@/components/AirportMap/AirportMapModule';
+import MapLoadingShimmer from '@/components/MapLoadingShimmer';
+
+const AirportMapModule = lazy(() => import('@/components/AirportMap/AirportMapModule').then((m) => ({ default: m.AirportMapModule })));
 
 const EDITOR_TOOLS = [
   { id: 'select', label: 'Select', icon: Move },
@@ -42,6 +44,46 @@ const UPDATE_LOGS = [
   { id: 4, time: '11:35:10', action: 'Label updated', detail: 'Waypoint 7 sign text corrected', type: 'edit' },
   { id: 5, time: '11:32:45', action: 'Node removed', detail: 'Temporary marker WP-26 deleted', type: 'delete' },
 ];
+
+function DeferredAirportMap() {
+  const [mountMap, setMountMap] = useState(false);
+
+  useEffect(() => {
+    // Keep the route transition lightweight. The shimmer appears immediately;
+    // the expensive WebGL map starts only after the slow ease-in is visible.
+    const delayId = window.setTimeout(() => {
+      if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(() => setMountMap(true), { timeout: 900 });
+      } else {
+        setMountMap(true);
+      }
+    }, 720);
+
+    return () => window.clearTimeout(delayId);
+  }, []);
+
+  if (!mountMap) {
+    return (
+      <MapLoadingShimmer
+        label="Loading map editor"
+        sublabel="Preparing editable terminal geometry, nodes, paths and version layers…"
+      />
+    );
+  }
+
+  return (
+    <Suspense
+      fallback={
+        <MapLoadingShimmer
+          label="Loading map editor"
+          sublabel="Preparing editable terminal geometry, nodes, paths and version layers…"
+        />
+      }
+    >
+      <AirportMapModule />
+    </Suspense>
+  );
+}
 
 function el(index: number) {
   const delay = index * DURATION.stagger;
@@ -143,7 +185,7 @@ export default function MapManagement() {
 
             {/* 3D Airport Map */}
             <div className="absolute inset-0 top-[45px]">
-              <AirportMapModule />
+              <DeferredAirportMap />
             </div>
           </div>
         </motion.div>

@@ -2,20 +2,20 @@ import type { Variants } from 'framer-motion';
 
 // --- Core Curves (Nakhlah Motion System) ---
 export const CURVES = {
-  easeOutSmooth: [0.16, 1, 0.3, 1] as const,
-  easeInOut: [0.77, 0, 0.175, 1] as const,
-  liquid: [0.18, 1.42, 0.22, 1] as const,       // overshoot spring (bouncy)
-  playful: [0.16, 1.36, 0.24, 1] as const,       // overshoot spring (bouncy)
-  macosSpring: [0.16, 1.28, 0.24, 1] as const,   // macOS-style spring
+  easeOutSmooth: [0.22, 0.75, 0.25, 1] as const,
+  easeInOut: [0.4, 0, 0.2, 1] as const,
+  liquid: [0.18, 1.12, 0.22, 1] as const,
+  playful: [0.18, 1.08, 0.24, 1] as const,
+  macosSpring: [0.2, 0.9, 0.25, 1] as const,
 };
 
-// --- Duration Tokens (slower, cinematic) ---
+// --- Duration Tokens (fast dashboard motion) ---
 export const DURATION = {
-  fast: 0.22,
-  normal: 0.7,
-  page: 1.4,
-  stagger: 0.45,
-  fadeSlow: 1.8,
+  fast: 0.12,
+  normal: 0.22,
+  page: 0.24,
+  stagger: 0.04,
+  fadeSlow: 0.16,
 };
 
 // --- Page Entrance (Signature "Pop-In" from bouncy-animation skill) ---
@@ -117,22 +117,37 @@ export const ambientPulse: Variants = {
 // Incoming: slide from right + scale overshoot + fade
 // Outgoing: scale down + fade
 export const routeTransition: Variants = {
-  initial: { opacity: 0, x: '3.5%', y: '1.2%', scale: 0.97 },
+  initial: { opacity: 0, x: 34, scale: 0.972, filter: 'blur(2px)' },
   animate: {
     opacity: 1,
     x: 0,
-    y: 0,
-    scale: 1,
+    scale: [0.972, 1.012, 0.997, 1],
+    filter: 'blur(0px)',
     transition: {
-      duration: 0.28,
-      ease: CURVES.easeOutSmooth,
-      opacity: { duration: 0.18, ease: 'linear' },
+      // Visible slow-motion ease for tab changes, but still short enough to avoid blocking clicks.
+      duration: 0.62,
+      ease: CURVES.easeInOut,
+      opacity: { duration: 0.24, ease: 'linear' },
+      filter: { duration: 0.34, ease: CURVES.easeInOut },
+      x: { duration: 0.62, ease: CURVES.easeInOut },
+      scale: {
+        duration: 0.62,
+        times: [0, 0.48, 0.76, 1],
+        ease: CURVES.easeInOut,
+      },
     },
   },
   exit: {
     opacity: 0,
-    scale: 0.99,
-    transition: { duration: 0.12, ease: CURVES.easeOutSmooth },
+    x: -18,
+    scale: 0.985,
+    filter: 'blur(1px)',
+    transition: {
+      duration: 0.22,
+      ease: CURVES.easeInOut,
+      opacity: { duration: 0.14, ease: 'linear' },
+      filter: { duration: 0.18, ease: CURVES.easeInOut },
+    },
   },
 };
 

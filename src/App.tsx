@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useMemo, lazy, Suspense, memo } from 'react';
+import { flushSync } from 'react-dom';
 import { Routes, Route, useNavigate, useLocation } from 'react-router';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -10,15 +11,16 @@ import { usePassengers } from '@/hooks/usePassengers';
 import { useDisruptions } from '@/hooks/useDisruptions';
 import { useSystemLogs } from '@/hooks/useSystemLogs';
 import { CURVES, DURATION, routeTransition } from '@/lib/animations';
+import Overview from '@/pages/Overview';
+import ControlCenter from '@/pages/ControlCenter';
+import MapManagement from '@/pages/MapManagement';
 
-// Lazy load pages — only load what's visible
-const Overview = lazy(() => import('@/pages/Overview'));
+// Keep the most-used/heaviest shell routes eager so sidebar clicks land immediately.
+// Less-used routes stay lazy and use the shimmer fallback.
 const LiveMonitoring = lazy(() => import('@/pages/LiveMonitoring'));
-const ControlCenter = lazy(() => import('@/pages/ControlCenter'));
 const IntelligenceAlerts = lazy(() => import('@/pages/IntelligenceAlerts'));
 const AnalyticsReports = lazy(() => import('@/pages/AnalyticsReports'));
 const PassengerFlow = lazy(() => import('@/pages/PassengerFlow'));
-const MapManagement = lazy(() => import('@/pages/MapManagement'));
 const SettingsPage = lazy(() => import('@/pages/Settings'));
 
 const NAV_ITEMS = [
@@ -57,10 +59,10 @@ const NavItem = memo(function NavItem({
       onClick={onNavigate}
       initial={{ opacity: 0, x: -12 }}
       animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: index * 0.08, duration: 0.4, ease: CURVES.easeOutSmooth as any }}
-      whileHover={{ x: 4, transition: { duration: 0.3, ease: CURVES.easeOutSmooth as any } }}
-      whileTap={{ scale: 0.96, transition: { duration: 0.2, ease: CURVES.liquid as any } }}
-      className={`relative w-full flex items-center gap-3 rounded-xl transition-colors duration-200 group ${
+      transition={{ delay: index * 0.02, duration: 0.16, ease: CURVES.easeOutSmooth as any }}
+      whileHover={{ x: 3, transition: { duration: 0.12, ease: CURVES.easeOutSmooth as any } }}
+      whileTap={{ scale: 0.97, transition: { duration: 0.08, ease: CURVES.easeOutSmooth as any } }}
+      className={`relative w-full flex items-center gap-3 rounded-xl transition-colors duration-200 group select-none cursor-pointer ${
         sidebarExpanded ? 'px-3 py-2.5' : 'px-0 py-2.5 justify-center'
       } ${
         isActive
@@ -72,7 +74,7 @@ const NavItem = memo(function NavItem({
         <motion.div
           layoutId="activeNavPill"
           className="absolute left-1.5 top-1/2 -translate-y-1/2 w-[3px] h-4 rounded-full bg-blue-500"
-          transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+      transition={{ type: 'spring', stiffness: 700, damping: 42 }}
         />
       )}
 
@@ -119,20 +121,22 @@ const Sidebar = memo(function Sidebar({
   criticalCount,
   pendingCount,
   activeNav,
+  onActiveNavChange,
 }: {
   sidebarExpanded: boolean;
   toggleSidebar: () => void;
   criticalCount: number;
   pendingCount: number;
   activeNav: string;
+  onActiveNavChange: (id: string) => void;
 }) {
   const navigate = useNavigate();
   return (
     <motion.aside
       initial={false}
       animate={{ width: sidebarExpanded ? 240 : 72 }}
-      transition={{ duration: 0.35, ease: CURVES.easeOutSmooth as any }}
-      className="fixed left-3 top-3 bottom-3 z-40 flex flex-col rounded-2xl overflow-hidden"
+      transition={{ duration: 0.18, ease: CURVES.easeOutSmooth as any }}
+      className="fixed left-3 top-3 bottom-3 z-40 flex flex-col rounded-2xl overflow-hidden select-none"
       style={{
         background: 'rgba(255, 255, 255, 0.85)',
         backdropFilter: 'blur(24px) saturate(180%)',
@@ -175,7 +179,10 @@ const Sidebar = memo(function Sidebar({
               sidebarExpanded={sidebarExpanded}
               criticalCount={criticalCount}
               pendingCount={pendingCount}
-              onNavigate={() => navigate(item.path)}
+              onNavigate={() => {
+                flushSync(() => onActiveNavChange(item.id));
+                navigate(item.path);
+              }}
             />
           ))}
         </div>
@@ -249,12 +256,111 @@ function ClockDisplay() {
 // Loading fallback for lazy pages
 function PageLoader() {
   return (
-    <div className="flex items-center justify-center h-64">
-      <div className="flex flex-col items-center gap-3">
-        <div className="w-8 h-8 border-2 border-blue-200 border-t-blue-500 rounded-full animate-spin" />
-        <span className="text-sm text-slate-400">Loading...</span>
+    <div className="relative min-h-[calc(100vh-4rem)] overflow-hidden bg-gradient-to-br from-slate-50 via-white to-blue-50 p-4">
+      <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.1s_infinite] bg-gradient-to-r from-transparent via-white/75 to-transparent" />
+
+      <div className="relative space-y-4">
+        <div className="h-[55vh] rounded-xl border border-slate-100 bg-white/70 shadow-sm overflow-hidden relative">
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-100 via-white to-blue-50" />
+          <div className="absolute inset-x-6 top-6 h-10 rounded-xl bg-white/80 border border-slate-100" />
+          <div className="absolute left-8 top-24 h-40 w-56 rounded-2xl bg-white/80 border border-slate-100" />
+          <div className="absolute right-8 bottom-8 h-28 w-64 rounded-2xl bg-white/80 border border-slate-100" />
+          <div className="absolute left-1/2 top-1/2 h-48 w-[58%] -translate-x-1/2 -translate-y-1/2 rounded-[2rem] bg-white/60 border border-slate-100" />
+          <div className="absolute left-6 bottom-5 flex items-center gap-2 rounded-full bg-white/90 px-3 py-1.5 text-xs font-medium text-slate-500 shadow-sm border border-slate-100">
+            <div className="w-3 h-3 rounded-full border-2 border-blue-200 border-t-blue-500 animate-spin" />
+            Loading view…
+          </div>
+        </div>
+
+        <div className="grid grid-cols-4 gap-3">
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="h-20 rounded-xl border border-slate-100 bg-white/75 shadow-sm" />
+          ))}
+        </div>
+
+        <div className="grid grid-cols-[1.5fr_1fr] gap-4">
+          <div className="h-72 rounded-xl border border-slate-100 bg-white/75 shadow-sm" />
+          <div className="h-72 rounded-xl border border-slate-100 bg-white/75 shadow-sm" />
+        </div>
       </div>
     </div>
+  );
+}
+
+function PageRoutes({
+  highlightedFilter,
+  handleFilterChange,
+  passengers,
+  selectedPassenger,
+  setSelectedPassenger,
+  activeCount,
+  deviatedCount,
+  emergencyCount,
+  avgDeviation,
+  avgConfidence,
+  disruptions,
+  pendingCount,
+  criticalCount,
+  approveDisruption,
+  flagDisruption,
+  resolveDisruption,
+  logs,
+}: {
+  highlightedFilter: string | null;
+  handleFilterChange: (filter: string | null) => void;
+  passengers: ReturnType<typeof usePassengers>['passengers'];
+  selectedPassenger: ReturnType<typeof usePassengers>['selectedPassenger'];
+  setSelectedPassenger: ReturnType<typeof usePassengers>['setSelectedPassenger'];
+  activeCount: number;
+  deviatedCount: number;
+  emergencyCount: number;
+  avgDeviation: number;
+  avgConfidence: number;
+  disruptions: ReturnType<typeof useDisruptions>['disruptions'];
+  pendingCount: number;
+  criticalCount: number;
+  approveDisruption: ReturnType<typeof useDisruptions>['approveDisruption'];
+  flagDisruption: ReturnType<typeof useDisruptions>['flagDisruption'];
+  resolveDisruption: ReturnType<typeof useDisruptions>['resolveDisruption'];
+  logs: ReturnType<typeof useSystemLogs>;
+}) {
+  return (
+    <Suspense fallback={<PageLoader />}>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <Overview
+              highlightedFilter={highlightedFilter}
+              onFilterChange={handleFilterChange}
+              passengers={passengers}
+              selectedPassenger={selectedPassenger}
+              setSelectedPassenger={setSelectedPassenger}
+              activeCount={activeCount}
+              deviatedCount={deviatedCount}
+              emergencyCount={emergencyCount}
+              avgDeviation={avgDeviation}
+              avgConfidence={avgConfidence}
+              passengerCount={passengers.length}
+              disruptions={disruptions}
+              pendingCount={pendingCount}
+              criticalCount={criticalCount}
+              approveDisruption={approveDisruption}
+              flagDisruption={flagDisruption}
+              resolveDisruption={resolveDisruption}
+              logs={logs}
+            />
+          }
+        />
+        <Route path="/monitoring" element={<LiveMonitoring />} />
+        <Route path="/control" element={<ControlCenter />} />
+        <Route path="/alerts" element={<IntelligenceAlerts />} />
+        <Route path="/analytics" element={<AnalyticsReports />} />
+        <Route path="/flow" element={<PassengerFlow />} />
+        <Route path="/map" element={<MapManagement />} />
+        <Route path="/settings" element={<SettingsPage />} />
+      </Routes>
+    </Suspense>
   );
 }
 
@@ -294,10 +400,15 @@ export default function App() {
     setSidebarExpanded(prev => !prev);
   }, []);
 
-  const activeNav = useMemo(
+  const routeActiveNav = useMemo(
     () => NAV_ITEMS.find(item => item.path === location.pathname)?.id || 'overview',
     [location.pathname]
   );
+  const [optimisticActiveNav, setOptimisticActiveNav] = useState(routeActiveNav);
+
+  useEffect(() => {
+    setOptimisticActiveNav(routeActiveNav);
+  }, [routeActiveNav]);
 
   return (
     <div className="min-h-screen bg-white text-slate-800 font-sans flex">
@@ -306,7 +417,8 @@ export default function App() {
         toggleSidebar={toggleSidebar}
         criticalCount={criticalCount}
         pendingCount={pendingCount}
-        activeNav={activeNav}
+        activeNav={optimisticActiveNav}
+        onActiveNavChange={setOptimisticActiveNav}
       />
 
       {/* ===== MAIN CONTENT ===== */}
@@ -318,7 +430,7 @@ export default function App() {
           marginTop: 12,
           marginBottom: 12,
           willChange: 'margin-left, max-width',
-          transition: `margin-left 0.35s cubic-bezier(0.16, 1, 0.3, 1), max-width 0.35s cubic-bezier(0.16, 1, 0.3, 1)`,
+          transition: `margin-left 0.18s cubic-bezier(0.22, 0.75, 0.25, 1), max-width 0.18s cubic-bezier(0.22, 0.75, 0.25, 1)`,
           position: 'relative',
           zIndex: 100,
           maxWidth: `calc(100vw - ${sidebarExpanded ? 268 : 96}px - 8px)`,
@@ -370,46 +482,37 @@ export default function App() {
 
         {/* Page Content with Route Transitions */}
         <div className="flex-1 overflow-y-auto" style={{ scrollBehavior: 'smooth' }}>
-          <Suspense fallback={<PageLoader />}>
-            <AnimatePresence mode="sync" initial={false}>
-              <Routes location={location} key={location.pathname}>
-                <Route
-                  path="/"
-                  element={
-                    <motion.div variants={routeTransition} initial="initial" animate="animate" exit="exit">
-                      <Overview
-                        highlightedFilter={highlightedFilter}
-                        onFilterChange={handleFilterChange}
-                        passengers={passengers}
-                        selectedPassenger={selectedPassenger}
-                        setSelectedPassenger={setSelectedPassenger}
-                        activeCount={activeCount}
-                        deviatedCount={deviatedCount}
-                        emergencyCount={emergencyCount}
-                        avgDeviation={avgDeviation}
-                        avgConfidence={avgConfidence}
-                        passengerCount={passengers.length}
-                        disruptions={disruptions}
-                        pendingCount={pendingCount}
-                        criticalCount={criticalCount}
-                        approveDisruption={approveDisruption}
-                        flagDisruption={flagDisruption}
-                        resolveDisruption={resolveDisruption}
-                        logs={logs}
-                      />
-                    </motion.div>
-                  }
-                />
-                <Route path="/monitoring" element={<motion.div variants={routeTransition} initial="initial" animate="animate" exit="exit"><LiveMonitoring /></motion.div>} />
-                <Route path="/control" element={<motion.div variants={routeTransition} initial="initial" animate="animate" exit="exit"><ControlCenter /></motion.div>} />
-                <Route path="/alerts" element={<motion.div variants={routeTransition} initial="initial" animate="animate" exit="exit"><IntelligenceAlerts /></motion.div>} />
-                <Route path="/analytics" element={<motion.div variants={routeTransition} initial="initial" animate="animate" exit="exit"><AnalyticsReports /></motion.div>} />
-                <Route path="/flow" element={<motion.div variants={routeTransition} initial="initial" animate="animate" exit="exit"><PassengerFlow /></motion.div>} />
-                <Route path="/map" element={<motion.div variants={routeTransition} initial="initial" animate="animate" exit="exit"><MapManagement /></motion.div>} />
-                <Route path="/settings" element={<motion.div variants={routeTransition} initial="initial" animate="animate" exit="exit"><SettingsPage /></motion.div>} />
-              </Routes>
-            </AnimatePresence>
-          </Suspense>
+          <AnimatePresence mode="sync" initial={false}>
+            <motion.div
+              key={location.pathname}
+              variants={routeTransition}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              className="min-h-full will-change-transform"
+              style={{ transformOrigin: 'center top' }}
+            >
+              <PageRoutes
+                highlightedFilter={highlightedFilter}
+                handleFilterChange={handleFilterChange}
+                passengers={passengers}
+                selectedPassenger={selectedPassenger}
+                setSelectedPassenger={setSelectedPassenger}
+                activeCount={activeCount}
+                deviatedCount={deviatedCount}
+                emergencyCount={emergencyCount}
+                avgDeviation={avgDeviation}
+                avgConfidence={avgConfidence}
+                disruptions={disruptions}
+                pendingCount={pendingCount}
+                criticalCount={criticalCount}
+                approveDisruption={approveDisruption}
+                flagDisruption={flagDisruption}
+                resolveDisruption={resolveDisruption}
+                logs={logs}
+              />
+            </motion.div>
+          </AnimatePresence>
         </div>
         </div>
       </main>

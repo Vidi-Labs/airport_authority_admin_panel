@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   Shield,
@@ -17,7 +17,45 @@ import {
 } from 'lucide-react';
 
 import { DURATION, CURVES } from '@/lib/animations';
-import { AirportMapModule } from '@/components/AirportMap/AirportMapModule';
+import MapLoadingShimmer from '@/components/MapLoadingShimmer';
+
+const AirportMapModule = lazy(() => import('@/components/AirportMap/AirportMapModule').then((m) => ({ default: m.AirportMapModule })));
+
+function MapWidgetShimmer() {
+  return (
+    <MapLoadingShimmer
+      label="Loading control center map"
+      sublabel="Preparing editable disruptions, routing overlays and terminal controls…"
+    />
+  );
+}
+
+function DeferredAirportMap() {
+  const [mountMap, setMountMap] = useState(false);
+
+  useEffect(() => {
+    // Do not build the heavy Three.js scene during the route transition.
+    // Show the lightweight shimmer immediately, then mount the map after the
+    // slow ease-in has visibly completed.
+    const delayId = window.setTimeout(() => {
+      if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(() => setMountMap(true), { timeout: 900 });
+      } else {
+        setMountMap(true);
+      }
+    }, 720);
+
+    return () => window.clearTimeout(delayId);
+  }, []);
+
+  if (!mountMap) return <MapWidgetShimmer />;
+
+  return (
+    <Suspense fallback={<MapWidgetShimmer />}>
+      <AirportMapModule />
+    </Suspense>
+  );
+}
 
 function el(index: number) {
   const delay = index * DURATION.stagger;
@@ -138,7 +176,7 @@ export default function ControlCenter() {
 
             {/* 3D Airport Map */}
             <div className="absolute inset-0 top-[45px]">
-              <AirportMapModule />
+              <DeferredAirportMap />
             </div>
           </div>
         </motion.div>
