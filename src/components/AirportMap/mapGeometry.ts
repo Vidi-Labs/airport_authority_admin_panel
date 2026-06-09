@@ -301,6 +301,24 @@ export const AIRPORT_ZONES: SourceRect[] = [
     type: "facility", color: "#9fc7d3", edgeColor: "#4f8596", height3d: 10,
   },
 
+  // ── Left wing gates (G1-G4) — G1-G3 vertical bars, G4 perpendicular at wing tip
+  { id: "gate-1", label: "G1", x: 20, y: 340, width: 18, height: 70, type: "landmark", color: "#e1ddcf", edgeColor: "#7e9070", height3d: 14 },
+  { id: "gate-2", label: "G2", x: -80, y: 340, width: 18, height: 70, type: "landmark", color: "#e1ddcf", edgeColor: "#7e9070", height3d: 14 },
+  { id: "gate-3", label: "G3", x: -180, y: 340, width: 18, height: 70, type: "landmark", color: "#e1ddcf", edgeColor: "#7e9070", height3d: 14 },
+  { id: "gate-4", label: "G4", x: -360, y: 410, width: 70, height: 18, type: "landmark", color: "#e1ddcf", edgeColor: "#7e9070", height3d: 14 },
+
+  // ── Right wing gates (G5-G9) — G5-G7 vertical bars, G8-G9 perpendicular at wing tip
+  { id: "gate-5", label: "G5", x: 1000, y: 340, width: 18, height: 70, type: "landmark", color: "#e1ddcf", edgeColor: "#7e9070", height3d: 14 },
+  { id: "gate-6", label: "G6", x: 1090, y: 340, width: 18, height: 70, type: "landmark", color: "#e1ddcf", edgeColor: "#7e9070", height3d: 14 },
+  { id: "gate-7", label: "G7", x: 1180, y: 340, width: 18, height: 70, type: "landmark", color: "#e1ddcf", edgeColor: "#7e9070", height3d: 14 },
+  { id: "gate-8", label: "G8", x: 1270, y: 390, width: 70, height: 18, type: "landmark", color: "#e1ddcf", edgeColor: "#7e9070", height3d: 14 },
+  { id: "gate-9", label: "G9", x: 1270, y: 450, width: 70, height: 18, type: "landmark", color: "#e1ddcf", edgeColor: "#7e9070", height3d: 14 },
+
+  // ── Spine gates (G10-G12) — near top junction
+  { id: "gate-10", label: "G10", x: 550, y: 50, width: 70, height: 18, type: "landmark", color: "#e1ddcf", edgeColor: "#7e9070", height3d: 14 },
+  { id: "gate-11", label: "G11", x: 380, y: 50, width: 70, height: 18, type: "landmark", color: "#e1ddcf", edgeColor: "#7e9070", height3d: 14 },
+  { id: "gate-12", label: "G12", x: 550, y: -20, width: 70, height: 8, type: "landmark", color: "#e1ddcf", edgeColor: "#7e9070", height3d: 14 },
+
   // ── Gate zone (wide green rectangle — base of home icon) — taller with more gates
   {
     id: "gate-zone",
@@ -433,6 +451,21 @@ export const AIRPORT_NODES: SourceNode[] = [
   { id: "beacon-belt-12", label: "BLE Beacon", x: 727, y: 575, radius: 5, type: "facility", color: "#2a2880" },
   { id: "beacon-belt-13", label: "BLE Beacon", x: 776, y: 575, radius: 5, type: "facility", color: "#2a2880" },
   { id: "beacon-belt-14", label: "BLE Beacon", x: 824, y: 575, radius: 5, type: "facility", color: "#2a2880" },
+
+  // Wing gates — left wing (G1 near terminal, G4 far left)
+  { id: "beacon-gate-1", label: "BLE Beacon", x: -40, y: 375, radius: 5, type: "facility", color: "#2a2880" },
+  { id: "beacon-gate-2", label: "BLE Beacon", x: -110, y: 375, radius: 5, type: "facility", color: "#2a2880" },
+  { id: "beacon-gate-3", label: "BLE Beacon", x: -180, y: 375, radius: 5, type: "facility", color: "#2a2880" },
+  { id: "beacon-gate-4", label: "BLE Beacon", x: -310, y: 384, radius: 5, type: "facility", color: "#2a2880" },
+  // Wing gates — right wing (G8,G9 near terminal, G5-G7 further right)
+  { id: "beacon-gate-8", label: "BLE Beacon", x: 1265, y: 349, radius: 5, type: "facility", color: "#2a2880" },
+  { id: "beacon-gate-9", label: "BLE Beacon", x: 1265, y: 399, radius: 5, type: "facility", color: "#2a2880" },
+  { id: "beacon-gate-5", label: "BLE Beacon", x: 920, y: 375, radius: 5, type: "facility", color: "#2a2880" },
+  { id: "beacon-gate-6", label: "BLE Beacon", x: 990, y: 375, radius: 5, type: "facility", color: "#2a2880" },
+  { id: "beacon-gate-7", label: "BLE Beacon", x: 1060, y: 375, radius: 5, type: "facility", color: "#2a2880" },
+  { id: "beacon-gate-10", label: "BLE Beacon", x: 460, y: 210, radius: 5, type: "facility", color: "#2a2880" },
+  { id: "beacon-gate-11", label: "BLE Beacon", x: 500, y: 210, radius: 5, type: "facility", color: "#2a2880" },
+  { id: "beacon-gate-12", label: "BLE Beacon", x: 540, y: 210, radius: 5, type: "facility", color: "#2a2880" },
 
   // Cargo building
   { id: "beacon-cargo-1", label: "BLE Beacon", x: 900, y: 580, radius: 5, type: "facility", color: "#2a2880" },

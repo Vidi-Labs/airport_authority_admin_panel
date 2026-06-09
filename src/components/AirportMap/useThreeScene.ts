@@ -646,7 +646,7 @@ function createDepartureBoard(text: string, width = 34): THREE.Sprite {
   ctx.strokeStyle = "rgba(59,130,246,0.8)";
   ctx.lineWidth = 6;
   ctx.strokeRect(6, 6, 500, 148);
-  ctx.fillStyle = "#7dd3fc";
+  ctx.fillStyle = "#ffffff";
   ctx.font = "bold 40px Inter, sans-serif";
   ctx.textAlign = "center";
   ctx.fillText(text, 256, 58);
@@ -659,7 +659,7 @@ function createDepartureBoard(text: string, width = 34): THREE.Sprite {
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
   const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, transparent: true, depthWrite: false }));
-  sprite.scale.set(width, width * 0.31, 1);
+  sprite.scale.set(width * 1.6, width * 0.31 * 1.6, 1);
   sprite.renderOrder = 20;
   return sprite;
 }
@@ -1291,7 +1291,9 @@ export function useThreeScene(canvasRef: React.RefObject<HTMLCanvasElement | nul
       ctx.clearRect(0, 0, 512, 128);
       ctx.fillStyle = "rgba(255,255,255,0.58)";
       ctx.beginPath(); ctx.roundRect(88, 28, 336, 52, 12); ctx.fill();
-      ctx.fillStyle = zone.type === "landmark" ? "#2a5a10"
+      ctx.fillStyle = zone.id.startsWith("gate-") && !zone.id.startsWith("gate-zone")
+          ? "#ffffff"
+          : zone.type === "landmark" ? "#2a5a10"
           : zone.type === "facility" ? "#1a4a6a"
               : zone.type === "shop"     ? "#6b4c00"
                   : "#444444";
