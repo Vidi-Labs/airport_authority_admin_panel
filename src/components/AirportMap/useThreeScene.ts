@@ -603,7 +603,7 @@ function createGateNumberSprite(labelText: string): THREE.Sprite {
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
   const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, transparent: true, depthWrite: false, depthTest: false }));
-  sprite.renderOrder = 10;
+  sprite.renderOrder = 30;
   return sprite;
 }
 
@@ -1311,7 +1311,7 @@ export function useThreeScene(canvasRef: React.RefObject<HTMLCanvasElement | nul
       // Gate number sprite
       if (zone.id.startsWith("gate-") && !zone.id.startsWith("gate-zone") && !zone.id.startsWith("gate-zone-wc")) {
         const gateNumber = createGateNumberSprite(zone.label);
-        gateNumber.position.set(world.x, (zone.height3d ?? BASE_SLAB_HEIGHT) + 28, world.z);
+        gateNumber.position.set(world.x, (zone.height3d ?? BASE_SLAB_HEIGHT) + 28, world.z + 20);
         gateNumber.scale.set(26, 26, 1);
         mapRoot.add(gateNumber);
         labelMeshesRef.current.push(gateNumber);

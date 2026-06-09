@@ -93,7 +93,7 @@ export function HUDOverlay({
       </div>
 
       {/* Bottom-Left: Legend */}
-      <div className="absolute bottom-3 left-3 px-3 py-2 rounded-lg pointer-events-auto"
+      <div className="absolute bottom-28 left-3 px-3 py-2 rounded-lg pointer-events-auto"
         style={{ background: "rgba(255,255,255,0.9)", border: "1px solid rgba(0,0,0,0.08)", backdropFilter: "blur(12px)", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
         <div className="flex items-center gap-3">
           {Object.entries(STATUS_COLORS).map(([status, color]) => (
@@ -106,9 +106,9 @@ export function HUDOverlay({
       </div>
 
       {/* Bottom-Right: Controls */}
-      <div className="absolute bottom-3 right-3 flex flex-col gap-1.5 pointer-events-auto">
+      <div className="absolute bottom-28 right-3 flex flex-col gap-1.5 pointer-events-auto">
         <div
-          className="w-11 rounded-lg overflow-hidden flex flex-col"
+          className="rounded-lg overflow-hidden flex flex-row"
           style={{
             background: "rgba(255,255,255,0.96)",
             border: "1px solid rgba(0,0,0,0.12)",
@@ -119,15 +119,15 @@ export function HUDOverlay({
         >
           <button
             onClick={onZoomIn}
-            className="h-10 text-xl font-semibold hover:bg-slate-50 transition-colors"
+            className="w-10 h-10 text-xl font-semibold hover:bg-slate-50 transition-colors"
             title="Zoom in"
           >
             +
           </button>
-          <div className="h-px bg-slate-200" />
+          <div className="w-px bg-slate-200" />
           <button
             onClick={onZoomOut}
-            className="h-10 text-2xl leading-none font-light hover:bg-slate-50 transition-colors"
+            className="w-10 h-10 text-xl leading-none font-light hover:bg-slate-50 transition-colors"
             title="Zoom out"
           >
             −
