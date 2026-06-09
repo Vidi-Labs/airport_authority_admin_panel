@@ -147,9 +147,22 @@ const LivePassengerMonitor = memo(function LivePassengerMonitor({
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 20 }}
               transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-              className="w-56 border-l border-slate-200 bg-white p-3 overflow-y-auto"
+              className="w-56 border-l border-slate-200 bg-white p-3 overflow-y-auto relative"
               style={{ maxHeight: '340px' }}
             >
+              <button
+                onClick={() => onSelectPassenger(null)}
+                className="absolute top-2 right-2 w-6 h-6 rounded flex items-center justify-center font-bold transition-colors z-10"
+                style={{
+                  background: "#fee2e2",
+                  color: "#dc2626",
+                  border: "1px solid #fecaca",
+                  fontSize: 14,
+                }}
+                title="Close"
+              >
+                &times;
+              </button>
               <div className="flex items-center gap-2 mb-3">
                 <SelectedIcon size={12} className={selectedCfg.color} />
                 <span className={`text-xs font-semibold ${selectedCfg.color}`}>{selected.id}</span>

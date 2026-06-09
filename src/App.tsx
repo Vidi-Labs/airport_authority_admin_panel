@@ -27,7 +27,7 @@ const NAV_ITEMS = [
   { id: 'control', label: 'Control Center', icon: Shield, path: '/control' },
   { id: 'alerts', label: 'Intelligence Alerts', icon: AlertTriangle, path: '/alerts' },
   { id: 'analytics', label: 'Analytics & Reports', icon: BarChart3, path: '/analytics' },
-  { id: 'flow', label: 'Passenger Flow', icon: Users, path: '/flow' },
+  { id: 'flow', label: 'User Management', icon: Users, path: '/flow' },
   { id: 'map', label: 'Map Management', icon: Map, path: '/map' },
   { id: 'settings', label: 'Settings', icon: Settings, path: '/settings' },
 ];
@@ -57,9 +57,9 @@ const NavItem = memo(function NavItem({
       onClick={onNavigate}
       initial={{ opacity: 0, x: -12 }}
       animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: index * 0.08, duration: 1.5, ease: CURVES.easeOutSmooth as any }}
-      whileHover={{ x: 4, transition: { duration: 0.8, ease: CURVES.easeOutSmooth as any } }}
-      whileTap={{ scale: 0.96, transition: { duration: 0.5, ease: CURVES.liquid as any } }}
+      transition={{ delay: index * 0.08, duration: 0.4, ease: CURVES.easeOutSmooth as any }}
+      whileHover={{ x: 4, transition: { duration: 0.3, ease: CURVES.easeOutSmooth as any } }}
+      whileTap={{ scale: 0.96, transition: { duration: 0.2, ease: CURVES.liquid as any } }}
       className={`relative w-full flex items-center gap-3 rounded-xl transition-colors duration-200 group ${
         sidebarExpanded ? 'px-3 py-2.5' : 'px-0 py-2.5 justify-center'
       } ${
@@ -88,7 +88,7 @@ const NavItem = memo(function NavItem({
             initial={{ opacity: 0, width: 0 }}
             animate={{ opacity: 1, width: 'auto' }}
             exit={{ opacity: 0, width: 0 }}
-            transition={{ duration: 1.5, ease: CURVES.easeOutSmooth as any }}
+            transition={{ duration: 0.25, ease: CURVES.easeOutSmooth as any }}
             className={`text-[13px] font-medium whitespace-nowrap overflow-hidden ${
               isActive ? 'text-blue-600' : ''
             }`}
@@ -112,6 +112,140 @@ const NavItem = memo(function NavItem({
   );
 });
 
+// Memoized sidebar — isolated from App's 1s clock re-renders
+const Sidebar = memo(function Sidebar({
+  sidebarExpanded,
+  toggleSidebar,
+  criticalCount,
+  pendingCount,
+  activeNav,
+}: {
+  sidebarExpanded: boolean;
+  toggleSidebar: () => void;
+  criticalCount: number;
+  pendingCount: number;
+  activeNav: string;
+}) {
+  const navigate = useNavigate();
+  return (
+    <motion.aside
+      initial={false}
+      animate={{ width: sidebarExpanded ? 240 : 72 }}
+      transition={{ duration: 0.35, ease: CURVES.easeOutSmooth as any }}
+      className="fixed left-3 top-3 bottom-3 z-40 flex flex-col rounded-2xl overflow-hidden"
+      style={{
+        background: 'rgba(255, 255, 255, 0.85)',
+        backdropFilter: 'blur(24px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+        border: '1px solid rgba(0, 0, 0, 0.06)',
+        boxShadow: '0 4px 24px rgba(0, 0, 0, 0.04), 0 1px 4px rgba(0, 0, 0, 0.02)',
+        willChange: 'width',
+      }}
+    >
+      {/* Logo Area */}
+      <div className="flex items-center gap-3 px-4 py-5 border-b border-slate-100">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center flex-shrink-0 shadow-md shadow-blue-500/20">
+          <Plane size={18} className="text-white" />
+        </div>
+        <AnimatePresence>
+          {sidebarExpanded && (
+            <motion.div
+              initial={{ opacity: 0, x: -8 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -8 }}
+              transition={{ duration: 0.25, ease: CURVES.easeOutSmooth as any }}
+              className="flex flex-col min-w-0"
+            >
+              <span className="text-sm font-bold text-slate-800 truncate">WAYPOINT</span>
+              <span className="text-[10px] text-slate-400 font-medium">Command Center</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Navigation — Capsule Rail */}
+      <nav className="flex-1 px-3 py-4 overflow-y-auto overflow-x-hidden" style={{ scrollbarWidth: 'none' }}>
+        <div className="space-y-1">
+          {NAV_ITEMS.map((item, index) => (
+            <NavItem
+              key={item.id}
+              item={item}
+              index={index}
+              isActive={activeNav === item.id}
+              sidebarExpanded={sidebarExpanded}
+              criticalCount={criticalCount}
+              pendingCount={pendingCount}
+              onNavigate={() => navigate(item.path)}
+            />
+          ))}
+        </div>
+      </nav>
+
+      {/* Sidebar Footer */}
+      <div className="px-3 py-4 border-t border-slate-100">
+        <button
+          onClick={toggleSidebar}
+          className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-colors mb-3"
+        >
+          {sidebarExpanded ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
+          <AnimatePresence>
+            {sidebarExpanded && (
+              <motion.span
+                initial={{ opacity: 0, width: 0 }}
+                animate={{ opacity: 1, width: 'auto' }}
+                exit={{ opacity: 0, width: 0 }}
+                transition={{ duration: 0.25, ease: CURVES.easeOutSmooth as any }}
+                className="text-xs font-medium overflow-hidden whitespace-nowrap"
+              >
+                Collapse
+              </motion.span>
+            )}
+          </AnimatePresence>
+        </button>
+
+        <div className={`flex items-center gap-3 ${sidebarExpanded ? 'px-2' : 'justify-center'}`}>
+          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-sm">
+            <span className="text-[11px] font-bold text-white">OP</span>
+          </div>
+          <AnimatePresence>
+            {sidebarExpanded && (
+              <motion.div
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -8 }}
+                transition={{ duration: 0.25, ease: CURVES.easeOutSmooth as any }}
+                className="flex flex-col min-w-0"
+              >
+                <span className="text-xs font-semibold text-slate-700 truncate">Operator</span>
+                <span className="text-[10px] text-slate-400">Terminal 3</span>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
+    </motion.aside>
+  );
+});
+
+// Clock with local state — doesn't force parent re-renders
+function ClockDisplay() {
+  const [now, setNow] = useState(new Date());
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  return (
+    <div className="flex items-center gap-3">
+      <span className="text-[11px] font-mono text-slate-400">
+        {now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+      </span>
+      <span className="text-[13px] font-mono font-semibold text-slate-700">
+        {now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+      </span>
+    </div>
+  );
+}
+
 // Loading fallback for lazy pages
 function PageLoader() {
   return (
@@ -127,9 +261,7 @@ function PageLoader() {
 export default function App() {
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
   const [highlightedFilter, setHighlightedFilter] = useState<string | null>(null);
-  const [currentTime, setCurrentTime] = useState(new Date());
   const [searchOpen, setSearchOpen] = useState(false);
-  const navigate = useNavigate();
   const location = useLocation();
 
   const {
@@ -154,21 +286,6 @@ export default function App() {
 
   const logs = useSystemLogs();
 
-  // Clock — update every second, but memoize formatted strings
-  useEffect(() => {
-    const interval = setInterval(() => setCurrentTime(new Date()), 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const formattedDate = useMemo(
-    () => currentTime.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }),
-    [currentTime]
-  );
-  const formattedTime = useMemo(
-    () => currentTime.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-    [currentTime]
-  );
-
   const handleFilterChange = useCallback((filter: string | null) => {
     setHighlightedFilter(filter);
   }, []);
@@ -184,102 +301,13 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-white text-slate-800 font-sans flex">
-      {/* ===== FLOATING GLASS SIDEBAR ===== */}
-      <motion.aside
-        initial={false}
-        animate={{ width: sidebarExpanded ? 240 : 72 }}
-        transition={{ duration: 2.5, ease: CURVES.easeOutSmooth as any }}
-        className="fixed left-3 top-3 bottom-3 z-40 flex flex-col rounded-2xl overflow-hidden"
-        style={{
-          background: 'rgba(255, 255, 255, 0.85)',
-          backdropFilter: 'blur(24px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(24px) saturate(180%)',
-          border: '1px solid rgba(0, 0, 0, 0.06)',
-          boxShadow: '0 4px 24px rgba(0, 0, 0, 0.04), 0 1px 4px rgba(0, 0, 0, 0.02)',
-        }}
-      >
-        {/* Logo Area */}
-        <div className="flex items-center gap-3 px-4 py-5 border-b border-slate-100">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center flex-shrink-0 shadow-md shadow-blue-500/20">
-            <Plane size={18} className="text-white" />
-          </div>
-          <AnimatePresence>
-            {sidebarExpanded && (
-              <motion.div
-                initial={{ opacity: 0, x: -8 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -8 }}
-                transition={{ duration: 1.5, ease: CURVES.easeOutSmooth as any }}
-                className="flex flex-col min-w-0"
-              >
-                <span className="text-sm font-bold text-slate-800 truncate">WAYPOINT</span>
-                <span className="text-[10px] text-slate-400 font-medium">Command Center</span>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        {/* Navigation — Capsule Rail */}
-        <nav className="flex-1 px-3 py-4 overflow-y-auto overflow-x-hidden" style={{ scrollbarWidth: 'none' }}>
-          <div className="space-y-1">
-            {NAV_ITEMS.map((item, index) => (
-              <NavItem
-                key={item.id}
-                item={item}
-                index={index}
-                isActive={activeNav === item.id}
-                sidebarExpanded={sidebarExpanded}
-                criticalCount={criticalCount}
-                pendingCount={pendingCount}
-                onNavigate={() => navigate(item.path)}
-              />
-            ))}
-          </div>
-        </nav>
-
-        {/* Sidebar Footer */}
-        <div className="px-3 py-4 border-t border-slate-100">
-          <button
-            onClick={toggleSidebar}
-            className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-colors mb-3"
-          >
-            {sidebarExpanded ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
-            <AnimatePresence>
-              {sidebarExpanded && (
-                <motion.span
-                  initial={{ opacity: 0, width: 0 }}
-                  animate={{ opacity: 1, width: 'auto' }}
-                  exit={{ opacity: 0, width: 0 }}
-                  transition={{ duration: 1.5, ease: CURVES.easeOutSmooth as any }}
-                  className="text-xs font-medium overflow-hidden whitespace-nowrap"
-                >
-                  Collapse
-                </motion.span>
-              )}
-            </AnimatePresence>
-          </button>
-
-          <div className={`flex items-center gap-3 ${sidebarExpanded ? 'px-2' : 'justify-center'}`}>
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-sm">
-              <span className="text-[11px] font-bold text-white">OP</span>
-            </div>
-            <AnimatePresence>
-              {sidebarExpanded && (
-                <motion.div
-                  initial={{ opacity: 0, x: -8 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -8 }}
-                  transition={{ duration: 1.5, ease: CURVES.easeOutSmooth as any }}
-                  className="flex flex-col min-w-0"
-                >
-                  <span className="text-xs font-semibold text-slate-700 truncate">Operator</span>
-                  <span className="text-[10px] text-slate-400">Terminal 3</span>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
-      </motion.aside>
+      <Sidebar
+        sidebarExpanded={sidebarExpanded}
+        toggleSidebar={toggleSidebar}
+        criticalCount={criticalCount}
+        pendingCount={pendingCount}
+        activeNav={activeNav}
+      />
 
       {/* ===== MAIN CONTENT ===== */}
       <main
@@ -289,7 +317,8 @@ export default function App() {
           marginRight: 8,
           marginTop: 12,
           marginBottom: 12,
-          transition: `margin-left 2.5s cubic-bezier(0.16, 1, 0.3, 1)`,
+          willChange: 'margin-left, max-width',
+          transition: `margin-left 0.35s cubic-bezier(0.16, 1, 0.3, 1), max-width 0.35s cubic-bezier(0.16, 1, 0.3, 1)`,
           position: 'relative',
           zIndex: 100,
           maxWidth: `calc(100vw - ${sidebarExpanded ? 268 : 96}px - 8px)`,
@@ -335,17 +364,14 @@ export default function App() {
 
             <div className="h-4 w-px bg-slate-200" />
 
-            <div className="flex items-center gap-3">
-              <span className="text-[11px] font-mono text-slate-400">{formattedDate}</span>
-              <span className="text-[13px] font-mono font-semibold text-slate-700">{formattedTime}</span>
-            </div>
+            <ClockDisplay />
           </div>
         </header>
 
         {/* Page Content with Route Transitions */}
         <div className="flex-1 overflow-y-auto" style={{ scrollBehavior: 'smooth' }}>
           <Suspense fallback={<PageLoader />}>
-            <AnimatePresence mode="wait">
+            <AnimatePresence mode="sync" initial={false}>
               <Routes location={location} key={location.pathname}>
                 <Route
                   path="/"

@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import SpatialMap from '@/sections/SpatialMap';
+import { AirportMapModule } from '@/components/AirportMap/AirportMapModule';
 import TelemetryRibbon from '@/sections/TelemetryRibbon';
 import LivePassengerMonitor from '@/sections/LivePassengerMonitor';
 import DisruptionControl from '@/sections/DisruptionControl';
@@ -72,11 +72,11 @@ export default function Overview({
     <div className="w-full flex flex-col">
       {/* Element 0: Hero Map */}
       <motion.div {...el(0)} className="w-full h-[55vh] rounded-xl border border-slate-100 overflow-hidden relative mb-4 bg-white">
-        <SpatialMap
-          passengers={passengers}
-          highlightedFilter={highlightedFilter}
-          onFilterChange={onFilterChange}
-        />
+        
+        <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 10 }}>
+          <AirportMapModule />
+        </div>
+
       </motion.div>
 
       {/* Element 1: Telemetry Ribbon */}

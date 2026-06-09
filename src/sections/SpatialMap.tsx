@@ -298,17 +298,17 @@ function HeatmapOverlay({ passengers, visible }: HeatmapOverlayProps) {
         const radius = 80;
 
         const grad = ctx.createRadialGradient(x, y, 0, x, y, radius);
-        grad.addColorStop(0, 'rgba(16, 185, 129, 0.35)');
-        grad.addColorStop(0.4, 'rgba(245, 158, 11, 0.2)');
-        grad.addColorStop(0.7, 'rgba(239, 68, 68, 0.1)');
-        grad.addColorStop(1, 'rgba(239, 68, 68, 0)');
+        grad.addColorStop(0, 'rgba(239, 68, 68, 0.5)');
+        grad.addColorStop(0.3, 'rgba(245, 158, 11, 0.35)');
+        grad.addColorStop(0.6, 'rgba(59, 130, 246, 0.15)');
+        grad.addColorStop(1, 'rgba(59, 130, 246, 0)');
 
         ctx.fillStyle = grad;
         ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
       });
 
       ctx.globalCompositeOperation = 'source-over';
-      ctx.fillStyle = 'rgba(248, 250, 252, 0.65)';
+      ctx.fillStyle = 'rgba(248, 250, 252, 0.2)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       animId = requestAnimationFrame(animate);

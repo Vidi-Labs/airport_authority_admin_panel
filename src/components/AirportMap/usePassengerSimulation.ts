@@ -1,6 +1,54 @@
 import { useState, useEffect, useRef } from "react";
 import { passengersData, type Passenger } from "./passengerData";
+import { sourceToWorld } from "./mapGeometry";
 import { getZoneAtPosition } from "./mapGeometry";
+
+
+const CROWD_COLORS = ["#ef4444", "#3b82f6", "#22c55e", "#f97316", "#8b5cf6", "#ec4899", "#14b8a6", "#f59e0b", "#64748b", "#111827"];
+const SIMULATION_INTERVAL_MS = 100;
+const SPEED_SCALE = SIMULATION_INTERVAL_MS / 50;
+const CROWD_ROUTES_SOURCE: [number, number][][] = [
+  [[80, 410], [230, 410], [370, 390], [500, 420], [700, 520], [735, 620]],
+  [[930, 410], [760, 410], [620, 388], [500, 420], [330, 520], [245, 620]],
+  [[500, 35], [500, 120], [500, 245], [470, 340], [500, 450], [500, 620]],
+  [[260, 525], [380, 525], [500, 555], [620, 525], [760, 525]],
+  [[275, 430], [355, 405], [455, 365], [560, 365], [690, 430]],
+  [[500, 625], [440, 555], [380, 455], [320, 360], [245, 300]],
+  [[500, 625], [560, 555], [625, 455], [690, 360], [750, 300]],
+];
+
+function makeCrowdPassengers(): Passenger[] {
+  return Array.from({ length: 62 }, (_, i) => {
+    const route = CROWD_ROUTES_SOURCE[i % CROWD_ROUTES_SOURCE.length].map(([x, y]) => sourceToWorld(x + ((i % 5) - 2) * 7, y + ((Math.floor(i / 5) % 5) - 2) * 5) as [number, number]);
+    const id = `PAX-${String(i + 11).padStart(3, "0")}`;
+    const status = i % 13 === 0 ? "waiting" : i % 11 === 0 ? "shopping" : "navigating";
+    return {
+      id,
+      name: `Passenger ${i + 11}`,
+      age: 18 + (i * 7) % 58,
+      nationality: ["UAE", "Indian", "British", "Japanese", "Brazilian", "Kenyan", "Canadian", "German"][i % 8],
+      flightNumber: [`EK-${420 + i}`, `QR-${130 + i}`, `BA-${80 + i}`][i % 3],
+      destination: ["Dubai", "London", "Tokyo", "Doha", "Toronto", "Mumbai"][i % 6],
+      boardingGate: `G${(i % 10) + 1}`,
+      boardingTime: `${10 + (i % 5)}:${String((i * 7) % 60).padStart(2, "0")}`,
+      status: status as Passenger["status"],
+      avatar: "🧑",
+      shirtColor: CROWD_COLORS[i % CROWD_COLORS.length],
+      journeyStart: "09:00 AM",
+      currentZone: "Terminal",
+      eta: `${6 + (i % 22)} mins`,
+      journeyLog: [],
+      pathIndex: 0,
+      pathPoints: route,
+      purchases: [],
+      needsHelp: false,
+      language: "English",
+      position: route[0],
+      trail: [],
+      tickCount: 0,
+    } satisfies Passenger;
+  });
+}
 
 function dist(a: [number, number], b: [number, number]): number {
   const dx = a[0] - b[0];
@@ -14,12 +62,17 @@ function lerp(a: number, b: number, t: number): number {
 
 export function usePassengerSimulation() {
   const [passengers, setPassengers] = useState<Passenger[]>(() =>
-    passengersData.map((p) => ({
-      ...p,
-      position: [...p.pathPoints[0]] as [number, number],
-      trail: [],
-      tickCount: 0,
-    }))
+    [...passengersData, ...makeCrowdPassengers()].map((p) => {
+      const randomOffset = Math.floor(Math.random() * Math.max(1, p.pathPoints.length - 1));
+      const startPos = p.pathPoints[randomOffset] || p.pathPoints[0];
+      return {
+        ...p,
+        position: [...startPos] as [number, number],
+        pathIndex: randomOffset,
+        trail: [],
+        tickCount: Math.floor(Math.random() * 20),
+      };
+    })
   );
   const passengersRef = useRef(passengers);
   passengersRef.current = passengers;
@@ -28,7 +81,8 @@ export function usePassengerSimulation() {
     const interval = setInterval(() => {
       setPassengers((prev) =>
         prev.map((p) => {
-          const speed = p.id === "PAX-003" ? 0.8 : p.id === "PAX-010" ? 2.0 : 1.5;
+          const baseSpeed = p.id === "PAX-003" ? 0.8 : p.id === "PAX-010" ? 2.0 : p.id > "PAX-010" ? 0.7 + (Number(p.id.slice(4)) % 13) * 0.18 : 1.2 + (Number(p.id.slice(4)) % 5) * 0.25;
+          const speed = baseSpeed * SPEED_SCALE;
           const targetIdx = Math.min(p.pathIndex + 1, p.pathPoints.length - 1);
           const target = p.pathPoints[targetIdx];
 
@@ -75,7 +129,7 @@ export function usePassengerSimulation() {
           // Random status flip for shoppers near shops
           if (p.status !== "difficulty" && p.id !== "PAX-004") {
             const nearShop =
-              newZone === "Sky Cafe" || newZone === "Duty Free" || newZone === "Pharmacy" || newZone === "Bookstore";
+              newZone === "Café" || newZone === "Duty Free" || newZone === "Pharmacy" || newZone === "Bookstore" || newZone === "Convenience Store";
             if (nearShop && Math.random() < 0.002) {
               newStatus = "shopping";
             } else if (newStatus === "shopping" && !nearShop && Math.random() < 0.005) {
@@ -94,7 +148,7 @@ export function usePassengerSimulation() {
           };
         })
       );
-    }, 50);
+    }, SIMULATION_INTERVAL_MS);
 
     return () => clearInterval(interval);
   }, []);

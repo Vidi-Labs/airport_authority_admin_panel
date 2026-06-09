@@ -122,17 +122,17 @@ export const routeTransition: Variants = {
     opacity: 1,
     x: 0,
     y: 0,
-    scale: [0.97, 1.006, 1],
+    scale: 1,
     transition: {
-      duration: DURATION.normal,
+      duration: 0.28,
       ease: CURVES.easeOutSmooth,
-      opacity: { duration: DURATION.fadeSlow, ease: 'linear' },
+      opacity: { duration: 0.18, ease: 'linear' },
     },
   },
   exit: {
     opacity: 0,
-    scale: 0.975,
-    transition: { duration: DURATION.normal * 0.5, ease: CURVES.easeOutSmooth },
+    scale: 0.99,
+    transition: { duration: 0.12, ease: CURVES.easeOutSmooth },
   },
 };
 

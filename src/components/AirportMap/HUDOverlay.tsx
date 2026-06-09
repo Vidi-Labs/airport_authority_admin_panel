@@ -14,6 +14,12 @@ interface Props {
   onHeatmapToggle: () => void;
   onTrailsToggle: () => void;
   onLabelsToggle: () => void;
+  onZoomOutAll: () => void;
+  zoomPercent: number;
+  viewMode: "2D" | "Detail" | "3D";
+  onZoomPercentChange: (zoom: number) => void;
+  onZoomIn: () => void;
+  onZoomOut: () => void;
   onPassengerSelect: (id: string) => void;
   selectedId: string | null;
 }
@@ -23,6 +29,12 @@ export function HUDOverlay({
   onHeatmapToggle,
   onTrailsToggle,
   onLabelsToggle,
+  onZoomOutAll,
+  zoomPercent,
+  viewMode,
+  onZoomPercentChange,
+  onZoomIn,
+  onZoomOut,
   onPassengerSelect,
   selectedId,
 }: Props) {
@@ -31,13 +43,6 @@ export function HUDOverlay({
   const [trailsActive, setTrailsActive] = useState(true);
   const [labelsActive, setLabelsActive] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  // Auto-open sidebar when a passenger is selected
-  useEffect(() => {
-    if (selectedId) {
-      setSidebarOpen(true);
-    }
-  }, [selectedId]);
 
   useEffect(() => {
     const iv = setInterval(() => setTime(new Date()), 1000);
@@ -105,6 +110,70 @@ export function HUDOverlay({
 
       {/* Bottom-Right: Controls */}
       <div className="absolute bottom-3 right-3 flex flex-col gap-1.5 pointer-events-auto">
+        <div
+          className="w-11 rounded-lg overflow-hidden flex flex-col"
+          style={{
+            background: "rgba(255,255,255,0.96)",
+            border: "1px solid rgba(0,0,0,0.12)",
+            color: "#334155",
+            backdropFilter: "blur(12px)",
+            boxShadow: "0 2px 6px rgba(0,0,0,0.16)",
+          }}
+        >
+          <button
+            onClick={onZoomIn}
+            className="h-10 text-xl font-semibold hover:bg-slate-50 transition-colors"
+            title="Zoom in"
+          >
+            +
+          </button>
+          <div className="h-px bg-slate-200" />
+          <button
+            onClick={onZoomOut}
+            className="h-10 text-2xl leading-none font-light hover:bg-slate-50 transition-colors"
+            title="Zoom out"
+          >
+            −
+          </button>
+        </div>
+
+        <div
+          className="w-52 rounded-lg px-3 py-2"
+          style={{
+            background: "rgba(255,255,255,0.92)",
+            border: "1px solid rgba(0,0,0,0.08)",
+            color: "#334155",
+            backdropFilter: "blur(12px)",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
+          }}
+        >
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Map Zoom</span>
+            <button
+              onClick={onZoomOutAll}
+              className="text-[10px] font-semibold text-blue-500 hover:text-blue-700 transition-colors"
+              title="Zoom to full airport map"
+            >
+              Full map
+            </button>
+          </div>
+          <div className="mb-1 text-[11px] font-mono font-bold text-slate-700">{zoomPercent}% · {viewMode}</div>
+          <input
+            type="range"
+            min={25}
+            max={500}
+            step={25}
+            value={zoomPercent}
+            onChange={(e) => onZoomPercentChange(Number(e.target.value))}
+            className="w-full accent-blue-500"
+          />
+          <div className="mt-1 flex justify-between text-[9px] text-slate-400">
+            <span>Full map</span>
+            <span>POIs</span>
+            <span>Street detail</span>
+          </div>
+        </div>
+
         {[
           { label: "Heatmap", active: heatmapActive, toggle: () => { setHeatmapActive(!heatmapActive); onHeatmapToggle(); } },
           { label: "Trails", active: trailsActive, toggle: () => { setTrailsActive(!trailsActive); onTrailsToggle(); } },
@@ -128,14 +197,20 @@ export function HUDOverlay({
       </div>
 
       {/* Left Sidebar: Passenger List */}
-      <div className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center pointer-events-auto">
+      <div className="absolute left-0 top-1/2 -translate-y-1/2 flex items-start pointer-events-auto z-30">
         {/* Toggle tab */}
         <button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="w-6 h-16 rounded-r-lg flex items-center justify-center text-slate-400 hover:text-slate-700 transition-colors"
-          style={{ background: "rgba(255,255,255,0.9)", borderLeft: "1px solid rgba(0,0,0,0.08)", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}
+          onClick={(e) => { e.stopPropagation(); setSidebarOpen((prev) => !prev); }}
+          className="w-7 h-20 rounded-r-lg flex items-center justify-center transition-colors"
+          style={{
+            background: sidebarOpen ? "rgba(34,170,255,0.15)" : "rgba(255,255,255,0.95)",
+            border: "1px solid rgba(0,0,0,0.1)",
+            boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+            color: sidebarOpen ? "#22aaff" : "#64748b",
+          }}
+          title={sidebarOpen ? "Close passenger list" : "Open passenger list"}
         >
-          <span className="text-[10px]">{sidebarOpen ? "\u25C0" : "\u25B6"}</span>
+          <span className="text-xs font-bold">{sidebarOpen ? "\u2715" : "\u2630"}</span>
         </button>
 
         {/* Panel */}
@@ -143,11 +218,11 @@ export function HUDOverlay({
           <div
             className="max-h-[60vh] overflow-y-auto rounded-r-lg"
             style={{
-              background: "rgba(255,255,255,0.95)",
+              background: "rgba(255,255,255,0.97)",
               border: "1px solid rgba(0,0,0,0.08)",
               backdropFilter: "blur(12px)",
-              width: 200,
-              boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+              width: 220,
+              boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
             }}
           >
             <div className="px-3 py-2 border-b border-slate-100">

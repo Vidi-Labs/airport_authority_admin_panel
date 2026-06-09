@@ -40,9 +40,12 @@ function generatePassengers(count: number): Passenger[] {
     const pathIdx = Math.floor(Math.random() * TERMINAL_PATHS.length);
     const path = TERMINAL_PATHS[pathIdx];
     const startNode = path[0];
+    const endNode = path[path.length - 1];
     const progress = Math.random();
-    const speed = 0.0008 + Math.random() * 0.0015;
-    const statuses: Passenger['status'][] = ['active', 'active', 'active', 'active', 'idle', 'deviated'];
+    const x = startNode.x + (endNode.x - startNode.x) * progress + (Math.random() - 0.5) * 10;
+    const y = startNode.y + (endNode.y - startNode.y) * progress + (Math.random() - 0.5) * 10;
+    const speed = 0.0005 + Math.random() * 0.002;
+    const statuses: Passenger['status'][] = ['active', 'active', 'active', 'idle', 'deviated'];
     const status = Math.random() < 0.7 ? 'active' : statuses[Math.floor(Math.random() * statuses.length)];
 
     return {
@@ -51,8 +54,8 @@ function generatePassengers(count: number): Passenger[] {
       destination: DESTINATIONS[Math.floor(Math.random() * DESTINATIONS.length)],
       status,
       confidence: 75 + Math.random() * 25,
-      x: startNode.x,
-      y: startNode.y,
+      x,
+      y,
       progress,
       pathIndex: pathIdx,
       speed,
