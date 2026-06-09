@@ -119,7 +119,7 @@ export const AIRPORT_ZONES: SourceRect[] = [
   {
     id: "jetbridge-horizontal-connector",
     label: "Glass Bridge",
-    x: 620, y: 55, width: 310, height: 42,
+    x: 560, y: -250, width: 370, height: 42,
     type: "corridor", color: "#cfe5ee", edgeColor: "#668797", height3d: 10,
   },
 
