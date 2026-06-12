@@ -204,21 +204,6 @@ export function PassengerDrawer({ passenger, isOpen, onClose }: Props) {
 
       {/* Live Feed */}
       <div className="px-4 mb-4">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
-            &#128250; Live Feed
-          </h3>
-          <button
-            onClick={() => {
-              const next = !passengerMuted;
-              setPassengerMuted(next);
-              toggleMute(next);
-            }}
-            className="p-1 rounded-md bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors"
-          >
-            {passengerMuted ? <Volume2 size={12} /> : <VolumeX size={12} />}
-          </button>
-        </div>
         <div className="relative rounded-lg overflow-hidden" style={{ height: 160 }}>
           <iframe
             id="passenger-video"
@@ -230,6 +215,23 @@ export function PassengerDrawer({ passenger, isOpen, onClose }: Props) {
             frameBorder="0"
             title="Live Passenger Feed"
           />
+          {/* Top overlay */}
+          <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-3 py-2 bg-gradient-to-b from-black/60 to-transparent pointer-events-none">
+            <div className="flex items-center gap-1.5">
+              <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+              <span className="text-[10px] font-mono text-red-400 font-bold">LIVE</span>
+            </div>
+            <button
+              onClick={() => {
+                const next = !passengerMuted;
+                setPassengerMuted(next);
+                toggleMute(next);
+              }}
+              className="pointer-events-auto p-1.5 rounded-md bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-colors"
+            >
+              {passengerMuted ? <VolumeX size={12} /> : <Volume2 size={12} />}
+            </button>
+          </div>
         </div>
       </div>
     </div>
