@@ -1,6 +1,6 @@
 import { useState, useMemo, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Video, AlertTriangle, CheckCircle2, PauseCircle, Radio } from 'lucide-react';
+import { Search, AlertTriangle, CheckCircle2, PauseCircle, Radio, Volume2, VolumeX } from 'lucide-react';
 import type { Passenger } from '@/types/dashboard';
 
 interface LivePassengerMonitorProps {
@@ -16,6 +16,7 @@ const LivePassengerMonitor = memo(function LivePassengerMonitor({
 }: LivePassengerMonitorProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [feedMuted, setFeedMuted] = useState(true);
 
   const filteredPassengers = useMemo(() => {
     let result = passengers;
@@ -38,6 +39,15 @@ const LivePassengerMonitor = memo(function LivePassengerMonitor({
   }, [passengers, searchQuery, statusFilter]);
 
   const selected = passengers.find(p => p.id === selectedPassenger);
+
+  function toggleFeedMute(muted: boolean) {
+    const iframe = document.getElementById('passenger-feed-video') as HTMLIFrameElement;
+    if (!iframe) return;
+    const cmd = muted
+      ? '{"event":"command","func":"mute","args":""}'
+      : '{"event":"command","func":"unMute","args":""}';
+    iframe.contentWindow?.postMessage(cmd, '*');
+  }
 
   const statusConfig: Record<string, { label: string; color: string; icon: typeof CheckCircle2 }> = {
     active: { label: 'On Track', color: 'text-emerald-600', icon: CheckCircle2 },
@@ -168,20 +178,34 @@ const LivePassengerMonitor = memo(function LivePassengerMonitor({
                 <span className={`text-xs font-semibold ${selectedCfg.color}`}>{selected.id}</span>
               </div>
 
-              {/* Camera feed placeholder */}
-              <div className="relative w-full h-24 rounded bg-gradient-to-br from-slate-50 via-slate-100 to-slate-50 border border-slate-200 mb-3 overflow-hidden">
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <Video size={20} className="text-slate-300" />
+              {/* Camera feed */}
+              <div className="relative w-full h-24 rounded border border-slate-200 mb-3 overflow-hidden bg-black">
+                <iframe
+                  id="passenger-feed-video"
+                  src="https://www.youtube.com/embed/q83bhmzABGE?autoplay=1&mute=1&loop=1&playlist=q83bhmzABGE&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1&playsinline=1&fs=0&cc_load_policy=0&enablejsapi=1"
+                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+                  style={{ width: '178%', height: '178%' }}
+                  allow="autoplay; encrypted-media"
+                  allowFullScreen={false}
+                  frameBorder="0"
+                  title="Passenger Feed"
+                />
+                <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-2 py-1.5 bg-gradient-to-b from-black/60 to-transparent pointer-events-none">
+                  <div className="flex items-center gap-1">
+                    <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                    <span className="text-[8px] font-mono text-red-400 font-bold">LIVE</span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      const next = !feedMuted;
+                      setFeedMuted(next);
+                      toggleFeedMute(next);
+                    }}
+                    className="pointer-events-auto p-1 rounded-md bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-colors"
+                  >
+                    {feedMuted ? <VolumeX size={10} /> : <Volume2 size={10} />}
+                  </button>
                 </div>
-                <div className="absolute top-1.5 left-1.5 flex items-center gap-1">
-                  <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-                  <span className="text-[8px] font-mono text-red-500">LIVE</span>
-                </div>
-                <div className="absolute bottom-1.5 right-1.5">
-                  <span className="text-[8px] font-mono text-slate-400">{selected.flightCode}</span>
-                </div>
-                {/* Scan line effect */}
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-500/5 to-transparent animate-pulse" style={{ animationDuration: '3s' }} />
               </div>
 
               <div className="space-y-2">
