@@ -157,7 +157,7 @@ const LivePassengerMonitor = memo(function LivePassengerMonitor({
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 20 }}
               transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-              className="w-56 border-l border-slate-200 bg-white p-3 overflow-y-auto relative"
+              className="w-64 border-l border-slate-200 bg-white p-3 overflow-y-auto relative"
               style={{ maxHeight: '340px' }}
             >
               <button
