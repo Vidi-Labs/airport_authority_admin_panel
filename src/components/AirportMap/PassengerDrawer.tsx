@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Volume2, VolumeX } from "lucide-react";
 import type { Passenger } from "./passengerData";
 
 const STATUS_COLORS: Record<string, string> = {
@@ -17,12 +18,22 @@ interface Props {
 
 export function PassengerDrawer({ passenger, isOpen, onClose }: Props) {
   const [, setNow] = useState(new Date());
+  const [passengerMuted, setPassengerMuted] = useState(true);
 
   useEffect(() => {
     if (!isOpen) return;
     const iv = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(iv);
   }, [isOpen]);
+
+  function toggleMute(muted: boolean) {
+    const iframe = document.getElementById('passenger-video') as HTMLIFrameElement;
+    if (!iframe) return;
+    const cmd = muted
+      ? '{"event":"command","func":"mute","args":""}'
+      : '{"event":"command","func":"unMute","args":""}';
+    iframe.contentWindow?.postMessage(cmd, '*');
+  }
 
   if (!passenger) return null;
 
@@ -188,6 +199,37 @@ export function PassengerDrawer({ passenger, isOpen, onClose }: Props) {
               <span className="text-emerald-500">&#10003; OK</span>
             )}
           </p>
+        </div>
+      </div>
+
+      {/* Live Feed */}
+      <div className="px-4 mb-4">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
+            &#128250; Live Feed
+          </h3>
+          <button
+            onClick={() => {
+              const next = !passengerMuted;
+              setPassengerMuted(next);
+              toggleMute(next);
+            }}
+            className="p-1 rounded-md bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors"
+          >
+            {passengerMuted ? <Volume2 size={12} /> : <VolumeX size={12} />}
+          </button>
+        </div>
+        <div className="relative rounded-lg overflow-hidden" style={{ height: 160 }}>
+          <iframe
+            id="passenger-video"
+            src="https://www.youtube.com/embed/q83bhmzABGE?autoplay=1&mute=1&loop=1&playlist=q83bhmzABGE&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1&playsinline=1&fs=0&cc_load_policy=0&enablejsapi=1"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+            style={{ width: '178%', height: '178%' }}
+            allow="autoplay; encrypted-media"
+            allowFullScreen={false}
+            frameBorder="0"
+            title="Live Passenger Feed"
+          />
         </div>
       </div>
     </div>
