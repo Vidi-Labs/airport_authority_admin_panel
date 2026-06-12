@@ -179,7 +179,7 @@ const LivePassengerMonitor = memo(function LivePassengerMonitor({
               </div>
 
               {/* Camera feed */}
-              <div className="relative w-full h-24 rounded border border-slate-200 mb-3 overflow-hidden bg-black">
+              <div className="relative w-full h-28 rounded border border-slate-200 mb-3 overflow-hidden bg-black">
                 <iframe
                   id="passenger-feed-video"
                   src="https://www.youtube.com/embed/q83bhmzABGE?autoplay=1&mute=1&loop=1&playlist=q83bhmzABGE&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1&playsinline=1&fs=0&cc_load_policy=0&enablejsapi=1"
