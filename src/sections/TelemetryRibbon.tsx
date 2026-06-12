@@ -38,6 +38,7 @@ const TelemetryRibbon = memo(function TelemetryRibbon({
       status: 'ok' as const,
       icon: Users,
       filter: 'active',
+      iconColor: 'text-blue-500',
     },
     {
       id: 'deviation',
@@ -47,6 +48,7 @@ const TelemetryRibbon = memo(function TelemetryRibbon({
       status: avgDeviation < 2 ? 'ok' : avgDeviation < 3 ? 'warn' : 'err',
       icon: Navigation,
       filter: null,
+      iconColor: 'text-violet-500',
     },
     {
       id: 'confidence',
@@ -56,6 +58,7 @@ const TelemetryRibbon = memo(function TelemetryRibbon({
       status: avgConfidence > 80 ? 'ok' : 'warn',
       icon: Activity,
       filter: null,
+      iconColor: 'text-emerald-500',
     },
     {
       id: 'blocked',
@@ -65,6 +68,7 @@ const TelemetryRibbon = memo(function TelemetryRibbon({
       status: deviatedCount > 0 ? 'warn' : 'ok',
       icon: MapPinOff,
       filter: 'blocked',
+      iconColor: 'text-amber-500',
     },
     {
       id: 'emergency',
@@ -74,6 +78,7 @@ const TelemetryRibbon = memo(function TelemetryRibbon({
       status: emergencyCount > 0 ? 'err' : 'ok',
       icon: AlertTriangle,
       filter: 'emergency',
+      iconColor: 'text-red-500',
     },
     {
       id: 'alerts',
@@ -83,6 +88,7 @@ const TelemetryRibbon = memo(function TelemetryRibbon({
       status: criticalAlerts > 0 ? 'err' : pendingAlerts > 0 ? 'warn' : 'ok',
       icon: Shield,
       filter: null,
+      iconColor: 'text-pink-500',
     },
     {
       id: 'system',
@@ -92,6 +98,7 @@ const TelemetryRibbon = memo(function TelemetryRibbon({
       status: 'ok',
       icon: Wifi,
       filter: null,
+      iconColor: 'text-cyan-500',
     },
     {
       id: 'uptime',
@@ -101,6 +108,7 @@ const TelemetryRibbon = memo(function TelemetryRibbon({
       status: 'ok',
       icon: Clock,
       filter: null,
+      iconColor: 'text-indigo-500',
     },
   ], [activeCount, deviatedCount, emergencyCount, avgDeviation, avgConfidence, passengerCount, pendingAlerts, criticalAlerts]);
 
@@ -147,26 +155,26 @@ const TelemetryRibbon = memo(function TelemetryRibbon({
           >
             <button
               onClick={() => metric.filter && onFilterClick(isActive ? null : metric.filter)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg border transition-all text-left ${
+              className={`w-full flex items-center gap-2 px-2.5 py-2 rounded-lg border transition-all text-left h-[96px] ${
                 isActive
                   ? `${colors.bg} ${colors.border} shadow-md`
                   : `bg-white border-slate-200 hover:border-blue-200 hover:bg-blue-50/50`
               }`}
             >
-              <div className={`flex items-center justify-center w-9 h-9 rounded-lg ${colors.bg} flex-shrink-0`}>
-                <Icon size={16} className={colors.text} />
+              <div className={`flex items-center justify-center w-7 h-7 rounded-md ${colors.bg} flex-shrink-0`}>
+                <Icon size={13} className={metric.iconColor} />
               </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="text-lg font-semibold text-slate-800 tracking-tight">{metric.value}</span>
+              <div className="flex-1 min-w-0 overflow-hidden">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-sm font-semibold text-slate-800 tracking-tight">{metric.value}</span>
                   {metric.total !== undefined && (
-                    <span className="text-xs text-slate-500">/ {metric.total}</span>
+                    <span className="text-[10px] text-slate-500 flex-shrink-0">/ {metric.total}</span>
                   )}
                 </div>
-                <div className="text-xs text-slate-500 truncate">{metric.label}</div>
-                <div className="flex items-center gap-1.5 mt-0.5">
-                  <div className={`w-1.5 h-1.5 rounded-full ${colors.dot}`} />
-                  <span className="text-[10px] font-mono text-slate-500">{metric.delta}</span>
+                <div className="text-[10px] text-slate-500">{metric.label}</div>
+                <div className="flex items-center gap-1 mt-0.5">
+                  <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${colors.dot}`} />
+                  <span className="text-[9px] font-mono text-slate-500">{metric.delta}</span>
                 </div>
               </div>
             </button>
